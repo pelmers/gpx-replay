@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>GPX Replay</title>
+        <meta
+            name="description"
+            content="Replay GPX files on a map with customizable options"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="/static/vendor/sakura.css" />
+        <link rel="stylesheet" href="/static/index.css" />
+        <link
+            href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css"
+            rel="stylesheet"
+        />
+        <script
+            async
+            defer
+            data-domain="gpx.pelmers.com"
+            src="https://plausible.pelmers.com/js/plausible.js"
+        ></script>
+        <script>
+            window.plausible =
+                window.plausible ||
+                function () {
+                    (window.plausible.q = window.plausible.q || []).push(arguments);
+                };
+        </script>
+    </head>
+
+    <body>
+        <img id="logo" src="/static/logo.png" alt="GPX Replay" />
+        <i>Replay GPX files in the browser</i>
+        <div id="react-root"></div>
+        <div id="footer">
+            <a href="https://pelmers.com/streetwarp-tech-details/">About</a>
+            <a href="https://github.com/pelmers/streetwarp-web">Source</a>
+            <a href="https://github.com/pelmers/streetwarp-web/issues/">Report bug</a>
+            <a href="https://github.com/pelmers/streetwarp-web/issues/"
+                >Request feature</a
+            >
+        </div>
+        <script src="/dist/index.bundle.js" async defer></script>
+    </body>
+</html>
