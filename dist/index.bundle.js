@@ -33426,7 +33426,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class ErrorComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     render() {
-        return react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "errorMessage" },
+        return react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "errorMessage center" },
             "Error: ",
             this.props.message);
     }
@@ -33456,7 +33456,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
     }
     render() {
         const handleFiles = (files) => this.props.onGpxLoad(files[0]);
-        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h4", { id: "gpx-step-header" }, "Load GPX file"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "gpx-step-contents" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
@@ -33497,7 +33497,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class LoadingComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     render() {
-        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "loading-spinner" }),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "loading-spinner-progress-text" }, this.props.message)));
     }
@@ -33816,22 +33816,31 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
         this.state = {};
         this.onFileAdded = (file) => __awaiter(this, void 0, void 0, function* () {
             this.setState({ isLoadingFile: true });
-            const [mapComponent, gpxContents] = yield Promise.all([
-                Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_mapbox-gl_dist_mapbox-gl_js"), __webpack_require__.e("components_MapComponent_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./components/MapComponent */ "./components/MapComponent.tsx")),
-                file.text(),
-            ]);
-            const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_2___default())();
-            gpx.parse(gpxContents);
-            this.setState({
-                isLoadingFile: false,
-                gpxError: undefined,
-                gpxInfo: {
-                    distance: gpx.tracks[0].distance,
-                    points: gpx.tracks[0].points,
-                    name: gpx.tracks[0].name,
-                },
-                mapComponent: mapComponent.default,
-            });
+            try {
+                // Import the map component async so the bundle can be split
+                const [mapComponent, gpxContents] = yield Promise.all([
+                    Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_mapbox-gl_dist_mapbox-gl_js"), __webpack_require__.e("components_MapComponent_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./components/MapComponent */ "./components/MapComponent.tsx")),
+                    file.text(),
+                ]);
+                const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_2___default())();
+                gpx.parse(gpxContents);
+                this.setState({
+                    isLoadingFile: false,
+                    gpxError: undefined,
+                    gpxInfo: {
+                        distance: gpx.tracks[0].distance,
+                        points: gpx.tracks[0].points,
+                        name: gpx.tracks[0].name,
+                    },
+                    mapComponent: mapComponent.default,
+                });
+            }
+            catch (e) {
+                this.setState({
+                    isLoadingFile: false,
+                    gpxError: e.message,
+                });
+            }
         });
     }
     render() {

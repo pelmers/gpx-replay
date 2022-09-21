@@ -11,15 +11,17 @@ type Props = {
 
 export default class MapComponent extends React.Component<Props, {}> {
     mapDivRef = React.createRef<HTMLDivElement>();
+    map: mapboxgl.Map;
+
     async componentDidMount() {
         const gpsPoints = this.props.gpxInfo.points;
-        const map = new mapboxgl.Map({
+        this.map = new mapboxgl.Map({
             container: this.mapDivRef.current!,
             zoom: 16,
             pitch: 60,
             center: toGeoJson(gpsPoints[0]),
             // TODO: let user pick the style
-            style: ' mapbox://styles/mapbox/outdoors-v11',
+            style: 'mapbox://styles/mapbox/outdoors-v11',
             accessToken: MAPBOX_API_KEY,
         });
         const addSource = (
@@ -27,35 +29,37 @@ export default class MapComponent extends React.Component<Props, {}> {
             points: LatLon[],
             params: mapboxgl.LinePaint
         ) => {
-            map.addSource(id, {
-                type: 'geojson',
-                data: {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: points.map(toGeoJson),
+            this.map
+                .addSource(id, {
+                    type: 'geojson',
+                    data: {
+                        type: 'Feature',
+                        properties: {},
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: points.map(toGeoJson),
+                        },
                     },
-                },
-            }).addLayer({
-                id,
-                type: 'line',
-                source: id,
-                layout: {
-                    'line-join': 'round',
-                    'line-cap': 'round',
-                },
-                paint: params,
-            });
+                })
+                .addLayer({
+                    id,
+                    type: 'line',
+                    source: id,
+                    layout: {
+                        'line-join': 'round',
+                        'line-cap': 'round',
+                    },
+                    paint: params,
+                });
         };
-        await new Promise((resolve) => {
-            map.once('styledata', () => {
+        await new Promise<void>((resolve) => {
+            this.map.once('styledata', () => {
                 addSource('gpxTrack', gpsPoints, {
                     // TODO: let user pick color/width?
                     'line-color': '#888',
                     'line-width': 2,
                 });
-                resolve(map);
+                resolve();
             });
         });
     }
@@ -77,6 +81,17 @@ export default class MapComponent extends React.Component<Props, {}> {
         return (
             <>
                 <div id="map-container" ref={this.mapDivRef} />
+                <div className="center">
+                    <div className="progress-container">
+                        <button aria-label="Play" role="button" className="play-button">
+                            ►
+                        </button>
+                        <label className="play-percent" role="percentage indicator" />
+                        <progress max="100" value="0" className="play-progress">
+                            Progress
+                        </progress>
+                    </div>
+                </div>
             </>
         );
     }

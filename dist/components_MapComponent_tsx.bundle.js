@@ -38,17 +38,18 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
     componentDidMount() {
         return __awaiter(this, void 0, void 0, function* () {
             const gpsPoints = this.props.gpxInfo.points;
-            const map = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().Map)({
+            this.map = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().Map)({
                 container: this.mapDivRef.current,
                 zoom: 16,
                 pitch: 60,
                 center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(gpsPoints[0]),
                 // TODO: let user pick the style
-                style: ' mapbox://styles/mapbox/outdoors-v11',
+                style: 'mapbox://styles/mapbox/outdoors-v11',
                 accessToken: _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__.MAPBOX_API_KEY,
             });
             const addSource = (id, points, params) => {
-                map.addSource(id, {
+                this.map
+                    .addSource(id, {
                     type: 'geojson',
                     data: {
                         type: 'Feature',
@@ -58,7 +59,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                             coordinates: points.map(_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson),
                         },
                     },
-                }).addLayer({
+                })
+                    .addLayer({
                     id,
                     type: 'line',
                     source: id,
@@ -70,13 +72,13 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 });
             };
             yield new Promise((resolve) => {
-                map.once('styledata', () => {
+                this.map.once('styledata', () => {
                     addSource('gpxTrack', gpsPoints, {
                         // TODO: let user pick color/width?
                         'line-color': '#888',
                         'line-width': 2,
                     });
-                    resolve(map);
+                    resolve();
                 });
             });
         });
@@ -96,7 +98,12 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         // TODO: show gpx info and map component
         // TODO: also options for various things
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef })));
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef }),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button" }, "\u25BA"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { className: "play-percent", role: "percentage indicator" }),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress" }, "Progress")))));
     }
 }
 
@@ -188,7 +195,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MAPBOX_API_KEY": () => (/* binding */ MAPBOX_API_KEY)
 /* harmony export */ });
-const MAPBOX_API_KEY = 'pk.eyJ1IjoicGVsbWVycyIsImEiOiJja2hpdTB3cnEwOW9zMnhwZnM5aDNmOGg1In0.DgXW9I1sf7pA_K-AqvN91g';
+const MAPBOX_API_KEY = 'pk.eyJ1IjoicGVsbWVycyIsImEiOiJjbDg5N2N5Nm0wMzU2M25qeHIzdjl5dm1pIn0.eIGsKaeGa_O7bELSprhD8A';
 
 
 /***/ })

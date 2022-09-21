@@ -12,6 +12,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="/static/vendor/sakura.css" />
         <link rel="stylesheet" href="/static/index.css" />
+        <link rel="stylesheet" href="/static/map.css" />
         <link
             href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css"
             rel="stylesheet"
@@ -32,10 +33,12 @@
     </head>
 
     <body>
-        <img id="logo" src="/static/logo.png" alt="GPX Replay" />
-        <i>Replay GPX files in the browser</i>
+        <div class="center">
+            <img id="logo" src="/static/logo.png" alt="GPX Replay" />
+            <i>Replay GPX files in the browser</i>
+        </div>
         <div id="react-root"></div>
-        <div id="footer">
+        <div id="footer" class="center">
             <a href="https://pelmers.com/streetwarp-tech-details/">About</a>
             <a href="https://github.com/pelmers/streetwarp-web">Source</a>
             <a href="https://github.com/pelmers/streetwarp-web/issues/">Report bug</a>

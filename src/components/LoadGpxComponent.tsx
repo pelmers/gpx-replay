@@ -10,7 +10,7 @@ export default class LoadGpxComponent extends React.Component<Props, {}> {
     render() {
         const handleFiles = (files: FileList) => this.props.onGpxLoad(files[0]);
         return (
-            <>
+            <div className="center">
                 <h4 id="gpx-step-header">Load GPX file</h4>
                 <div id="gpx-step-contents">
                     <div>
@@ -53,7 +53,7 @@ export default class LoadGpxComponent extends React.Component<Props, {}> {
                         Or drag and drop here
                     </div>
                 </div>
-            </>
+            </div>
         );
     }
 }

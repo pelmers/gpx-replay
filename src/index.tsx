@@ -19,22 +19,30 @@ class App extends React.Component<{}, State> {
 
     onFileAdded = async (file: File) => {
         this.setState({ isLoadingFile: true });
-        const [mapComponent, gpxContents] = await Promise.all([
-            import('./components/MapComponent'),
-            file.text(),
-        ]);
-        const gpx = new GpxParser();
-        gpx.parse(gpxContents);
-        this.setState({
-            isLoadingFile: false,
-            gpxError: undefined,
-            gpxInfo: {
-                distance: gpx.tracks[0].distance,
-                points: gpx.tracks[0].points,
-                name: gpx.tracks[0].name,
-            },
-            mapComponent: mapComponent.default,
-        });
+        try {
+            // Import the map component async so the bundle can be split
+            const [mapComponent, gpxContents] = await Promise.all([
+                import('./components/MapComponent'),
+                file.text(),
+            ]);
+            const gpx = new GpxParser();
+            gpx.parse(gpxContents);
+            this.setState({
+                isLoadingFile: false,
+                gpxError: undefined,
+                gpxInfo: {
+                    distance: gpx.tracks[0].distance,
+                    points: gpx.tracks[0].points,
+                    name: gpx.tracks[0].name,
+                },
+                mapComponent: mapComponent.default,
+            });
+        } catch (e) {
+            this.setState({
+                isLoadingFile: false,
+                gpxError: e.message,
+            });
+        }
     };
 
     render() {

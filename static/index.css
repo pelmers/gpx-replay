@@ -54,126 +54,17 @@
     }
 }
 
-#loading-spinner-progress-text {
-    color: #2c8898;
-    font-weight: bold;
-    text-align: center;
-}
-
-#steps > li:not(:nth-of-type(1)) {
-    display: none;
-}
-
-#steps > li {
-    padding-bottom: 0.5em;
-}
-
-#frame-density-label {
-    display: inline-block;
-    position: relative;
-    width: 55px;
-    color: white;
-    line-height: 20px;
-    text-align: center;
-    border-radius: 3px;
-    background: #2c3e50;
-    padding: 5px 10px;
-    margin-left: 8px;
-}
-
-#frame-density-label:after {
-    position: absolute;
-    top: 8px;
-    left: -7px;
-    width: 0;
-    height: 0;
-    border-top: 7px solid transparent;
-    border-right: 7px solid #2c3e50;
-    border-bottom: 7px solid transparent;
-    content: '';
-}
-
-#cost-estimate {
-    font-weight: bold;
-    font-size: larger;
-}
-
-input[type='range'] {
-    width: calc(100% - (90px));
-    height: 10px;
-    border-radius: 5px;
-    background: #d7dcdf;
-    outline: none;
-    padding: 0;
-    margin: 0;
-}
-
-/* https://scotch.io/tutorials/google-material-design-input-boxes-in-css3 */
-input[type='text'] {
-    font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    display: block;
-    width: 100%;
-    border: none;
-    border-bottom: 1px solid #757575;
-}
-input[type='text']:focus {
-    outline: none;
-}
-
-/* LABEL ======================================= */
-label {
-    color: #999;
-    font-size: 18px;
-    font-weight: normal;
-    pointer-events: none;
-    transition: 0.2s ease all;
-    margin-top: -2.5em;
-    margin-left: 10px;
-}
-
-/* active state */
-input[type='text']:focus ~ label,
-input[type='text']:valid ~ label {
-    font-size: 14px;
-    margin-top: 0px;
-    color: #2c8898;
-}
-
-/* BOTTOM BARS ================================= */
-.bar {
-    position: relative;
-    display: block;
-    width: 100%;
-}
-.bar:before,
-.bar:after {
-    content: '';
-    height: 2px;
-    width: 0;
-    bottom: 1px;
-    position: absolute;
-    background: #982c61;
-    transition: 0.2s ease all;
-}
-.bar:before {
-    left: 50%;
-}
-.bar:after {
-    right: 50%;
-}
-
-/* active state */
-input[type='text']:focus ~ .bar:before,
-input[type='text']:focus ~ .bar:after {
-    width: 50%;
-}
-
-button {
+#gpx-button{
     width: calc(100% - 20px);
     font-size: 1.3em;
     line-height: 2em;
     margin: 10px;
+}
+
+#loading-spinner-progress-text {
+    color: #2c8898;
+    font-weight: bold;
+    text-align: center;
 }
 
 #footer {
@@ -199,4 +90,9 @@ button {
 
 .error-message {
     color: red;
+}
+
+.center {
+    margin: auto;
+    max-width: 38em;
 }
