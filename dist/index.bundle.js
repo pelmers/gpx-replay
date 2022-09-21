@@ -33498,8 +33498,8 @@ __webpack_require__.r(__webpack_exports__);
 class LoadingComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     render() {
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "loading-spinner" }),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "loading-spinner-progress-text" }, this.props.message)));
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "loading-spinner" }),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "loading-spinner-progress-text" }, this.props.message)));
     }
 }
 

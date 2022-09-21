@@ -21,20 +21,14 @@
     background-color: #ae200043;
 }
 
-#api-notes {
-    font-size: 0.8em;
-    display: none;
-}
-
-#loading-spinner {
+.loading-spinner {
     position: relative;
-    display: none;
     left: 50%;
     margin-left: -40px;
     width: 80px;
     height: 80px;
 }
-#loading-spinner:after {
+.loading-spinner:after {
     content: ' ';
     display: block;
     width: 64px;
@@ -54,17 +48,17 @@
     }
 }
 
-#gpx-button{
+.loading-spinner-progress-text {
+    color: #2c8898;
+    font-weight: bold;
+    text-align: center;
+}
+
+#gpx-button {
     width: calc(100% - 20px);
     font-size: 1.3em;
     line-height: 2em;
     margin: 10px;
-}
-
-#loading-spinner-progress-text {
-    color: #2c8898;
-    font-weight: bold;
-    text-align: center;
 }
 
 #footer {
