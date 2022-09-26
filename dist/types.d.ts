@@ -4,6 +4,7 @@ export declare type GpxInfo = {
         total: number;
     };
     points: LatLon[];
+    sizeBytes: number;
 };
 declare type LatLonBase = {
     lat: number;

@@ -34,6 +34,7 @@ class App extends React.Component<{}, State> {
                     distance: gpx.tracks[0].distance,
                     points: gpx.tracks[0].points,
                     name: gpx.tracks[0].name,
+                    sizeBytes: gpxContents.length,
                 },
                 mapComponent: mapComponent.default,
             });

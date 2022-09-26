@@ -4,6 +4,7 @@ export type GpxInfo = {
         total: number;
     };
     points: LatLon[];
+    sizeBytes: number;
 };
 
 type LatLonBase = {

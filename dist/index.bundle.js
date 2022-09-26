@@ -33819,7 +33819,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
             try {
                 // Import the map component async so the bundle can be split
                 const [mapComponent, gpxContents] = yield Promise.all([
-                    Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_mapbox-gl_dist_mapbox-gl_js"), __webpack_require__.e("components_MapComponent_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./components/MapComponent */ "./components/MapComponent.tsx")),
+                    Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_mapbox-gl_dist_mapbox-gl_js-node_modules_turf_turf_dist_es_index_js"), __webpack_require__.e("components_MapComponent_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./components/MapComponent */ "./components/MapComponent.tsx")),
                     file.text(),
                 ]);
                 const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_2___default())();
@@ -33831,6 +33831,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                         distance: gpx.tracks[0].distance,
                         points: gpx.tracks[0].points,
                         name: gpx.tracks[0].name,
+                        sizeBytes: gpxContents.length,
                     },
                     mapComponent: mapComponent.default,
                 });
