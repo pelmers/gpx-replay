@@ -27,6 +27,7 @@ class App extends React.Component<{}, State> {
             ]);
             const gpx = new GpxParser();
             gpx.parse(gpxContents);
+            // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
             this.setState({
                 isLoadingFile: false,
                 gpxError: undefined,

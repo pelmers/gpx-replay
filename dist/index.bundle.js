@@ -33824,6 +33824,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                 ]);
                 const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_2___default())();
                 gpx.parse(gpxContents);
+                // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
                 this.setState({
                     isLoadingFile: false,
                     gpxError: undefined,

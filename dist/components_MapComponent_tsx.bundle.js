@@ -94,18 +94,20 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
     }
     updatePointPosition(newPosition) {
         const { points } = this.props.gpxInfo;
-        const currentFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[Math.floor(this.playhead)]);
-        const nextFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[Math.floor(newPosition)]);
+        const pointIndex = Math.floor(newPosition);
+        if (pointIndex === points.length - 1) {
+            this.point.features[0] = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
+            return;
+        }
+        const currentFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
+        const nextFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex + 1]);
         const nextBearing = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.bearing(currentFrameFeature, nextFrameFeature);
         const nextDist = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.distance(currentFrameFeature, nextFrameFeature);
-        const interpPoint = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.along((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonLineString)(points[Math.floor(this.playhead)], points[Math.floor(newPosition)]), nextDist * (newPosition - this.playhead) +
-            (this.playhead - Math.floor(this.playhead)));
+        const interpPoint = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.along((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonLineString)(points[pointIndex], points[pointIndex + 1]), nextDist * (newPosition - pointIndex));
         // @ts-ignore it's okay this is fine
         this.point.features[0] = interpPoint;
         this.point.features[0].properties.bearing = nextBearing;
         this.map.getSource('point').setData(this.point);
-        // TODO: if follow mode update camera
-        // TODO: set new state on the progress bar
     }
     componentWillUnmount() {
         if (this.animationHandle != null) {
@@ -202,7 +204,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { className: "play-percent", role: "percentage indicator" }),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef }, "Progress")))));
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: (evt) => { } }, "Progress")))));
     }
 }
 

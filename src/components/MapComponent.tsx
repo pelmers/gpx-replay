@@ -96,30 +96,28 @@ export default class MapComponent extends React.Component<Props, State> {
         }
         this.playhead = newPosition;
     }
-    
+
     updatePointPosition(newPosition: number) {
-        const {points} = this.props.gpxInfo;
-        const currentFrameFeature = toGeoJsonFeature(points[Math.floor(this.playhead)]);
-        const nextFrameFeature = toGeoJsonFeature(points[Math.floor(newPosition)]);
+        const { points } = this.props.gpxInfo;
+        const pointIndex = Math.floor(newPosition);
+        if (pointIndex === points.length - 1) {
+            this.point.features[0] = toGeoJsonFeature(points[pointIndex]);
+            return;
+        }
+        const currentFrameFeature = toGeoJsonFeature(points[pointIndex]);
+        const nextFrameFeature = toGeoJsonFeature(points[pointIndex + 1]);
 
         const nextBearing = turf.bearing(currentFrameFeature, nextFrameFeature);
         const nextDist = turf.distance(currentFrameFeature, nextFrameFeature);
         const interpPoint = turf.along(
-            toGeoJsonLineString(
-                points[Math.floor(this.playhead)],
-                points[Math.floor(newPosition)]
-            ),
-            nextDist * (newPosition - this.playhead) +
-                (this.playhead - Math.floor(this.playhead))
+            toGeoJsonLineString(points[pointIndex], points[pointIndex + 1]),
+            nextDist * (newPosition - pointIndex)
         );
 
         // @ts-ignore it's okay this is fine
         this.point.features[0] = interpPoint;
         this.point.features[0].properties.bearing = nextBearing;
         (this.map.getSource('point') as mapboxgl.GeoJSONSource).setData(this.point);
-
-        // TODO: if follow mode update camera
-        // TODO: set new state on the progress bar
     }
 
     componentWillUnmount(): void {
@@ -231,7 +229,13 @@ export default class MapComponent extends React.Component<Props, State> {
                         </button>
                         <label className="play-percent" role="percentage indicator" />
                         {/* TODO: on seek, update the icon position */}
-                        <progress max="100" value="0" className="play-progress" ref={this.progressRef}>
+                        <progress
+                            max="100"
+                            value="0"
+                            className="play-progress"
+                            ref={this.progressRef}
+                            onClick={(evt) => {}}
+                        >
                             Progress
                         </progress>
                     </div>
