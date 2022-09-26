@@ -66,6 +66,12 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             this.lastAnimationTime = t;
             this.animationHandle = requestAnimationFrame(this.animationLoop);
         };
+        this.handleProgressClick = (evt) => {
+            let offsetFraction = evt.nativeEvent.offsetX / this.progressRef.current.offsetWidth;
+            offsetFraction = Math.max(offsetFraction, 0);
+            offsetFraction = Math.min(offsetFraction, 1);
+            this.updatePointPosition(this.props.gpxInfo.points.length * offsetFraction);
+        };
         this.state = {
             useFollowCam: true,
             // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
@@ -108,6 +114,9 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         this.point.features[0] = interpPoint;
         this.point.features[0].properties.bearing = nextBearing;
         this.map.getSource('point').setData(this.point);
+        if (this.progressRef.current != null) {
+            this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
+        }
     }
     componentWillUnmount() {
         if (this.animationHandle != null) {
@@ -204,7 +213,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { className: "play-percent", role: "percentage indicator" }),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: (evt) => { } }, "Progress")))));
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress")))));
     }
 }
 

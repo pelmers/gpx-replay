@@ -118,6 +118,10 @@ export default class MapComponent extends React.Component<Props, State> {
         this.point.features[0] = interpPoint;
         this.point.features[0].properties.bearing = nextBearing;
         (this.map.getSource('point') as mapboxgl.GeoJSONSource).setData(this.point);
+
+        if (this.progressRef.current != null) {
+            this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
+        }
     }
 
     componentWillUnmount(): void {
@@ -196,6 +200,14 @@ export default class MapComponent extends React.Component<Props, State> {
         requestAnimationFrame(this.animationLoop);
     }
 
+    handleProgressClick = (evt: { nativeEvent: { offsetX: number } }) => {
+        let offsetFraction =
+            evt.nativeEvent.offsetX / this.progressRef.current!.offsetWidth;
+        offsetFraction = Math.max(offsetFraction, 0);
+        offsetFraction = Math.min(offsetFraction, 1);
+        this.updatePointPosition(this.props.gpxInfo.points.length * offsetFraction);
+    };
+
     render() {
         // TODO outline:
         // 1. map itself
@@ -234,7 +246,7 @@ export default class MapComponent extends React.Component<Props, State> {
                             value="0"
                             className="play-progress"
                             ref={this.progressRef}
-                            onClick={(evt) => {}}
+                            onClick={this.handleProgressClick}
                         >
                             Progress
                         </progress>

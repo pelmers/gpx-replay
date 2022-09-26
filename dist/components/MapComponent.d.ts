@@ -37,6 +37,11 @@ export default class MapComponent extends React.Component<Props, State> {
     updatePointPosition(newPosition: number): void;
     componentWillUnmount(): void;
     componentDidMount(): Promise<void>;
+    handleProgressClick: (evt: {
+        nativeEvent: {
+            offsetX: number;
+        };
+    }) => void;
     render(): JSX.Element;
 }
 export {};
