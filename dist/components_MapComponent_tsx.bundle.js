@@ -73,13 +73,17 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             this.updatePointPosition(this.props.gpxInfo.points.length * offsetFraction);
         };
         this.state = {
-            useFollowCam: true,
+            useFollowCam: false,
+            useFollowTrack: false,
             // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
             // divide by 60 seconds per minute
             pointsPerSecond: props.gpxInfo.points.length / 60,
             isPlaying: false,
-            playbackRate: 5,
+            playbackRate: 1,
+            gpxTrackWidth: 4,
+            gpxTrackColor: '#ff0',
+            pointIcon: 'bicycle-15',
         };
         const origin = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
@@ -117,6 +121,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         if (this.progressRef.current != null) {
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
         }
+        // TODO: if followcam, do that here
+        // TODO: if followtrack, do that here too
     }
     componentWillUnmount() {
         if (this.animationHandle != null) {
@@ -162,9 +168,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             yield new Promise((resolve) => {
                 this.map.once('styledata', () => {
                     addSource('gpxTrack', gpsPoints, {
-                        // TODO: let user pick color/width?
-                        'line-color': '#ff0',
-                        'line-width': 4,
+                        'line-color': this.state.gpxTrackColor,
+                        'line-width': this.state.gpxTrackWidth,
                     });
                     this.map.addSource('point', {
                         type: 'geojson',
@@ -175,8 +180,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                         source: 'point',
                         type: 'symbol',
                         layout: {
-                            // TODO: allow customize the icon
-                            'icon-image': 'bicycle-15',
+                            'icon-image': this.state.pointIcon,
                             'icon-size': 2,
                             'icon-allow-overlap': true,
                             'icon-ignore-placement': true,
@@ -193,7 +197,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         // 1. map itself
         // 2. scrubbable progress bar, and playback rate (also slider?)
         // 3. followcam toggle
-        // 4. inputs for the different options:
+        // 4. draw route behind toggle
+        // 5. inputs for the different options:
         //  - constant speed or given speed
         //  - map style
         //  - icon type, icon size

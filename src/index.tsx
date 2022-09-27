@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import GpxParser from 'gpxparser';
 
 import ErrorComponent from './components/ErrorComponent';
 import LoadGpxComponent from './components/LoadGpxComponent';
@@ -21,22 +20,16 @@ class App extends React.Component<{}, State> {
         this.setState({ isLoadingFile: true });
         try {
             // Import the map component async so the bundle can be split
-            const [mapComponent, gpxContents] = await Promise.all([
+            const [mapComponent, gpxContents, gpxParse] = await Promise.all([
                 import('./components/MapComponent'),
                 file.text(),
+                import('./gpxParsing')
             ]);
-            const gpx = new GpxParser();
-            gpx.parse(gpxContents);
             // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
             this.setState({
                 isLoadingFile: false,
                 gpxError: undefined,
-                gpxInfo: {
-                    distance: gpx.tracks[0].distance,
-                    points: gpx.tracks[0].points,
-                    name: gpx.tracks[0].name,
-                    sizeBytes: gpxContents.length,
-                },
+                gpxInfo: gpxParse.default(gpxContents),
                 mapComponent: mapComponent.default,
             });
         } catch (e) {

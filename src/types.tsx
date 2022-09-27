@@ -12,4 +12,5 @@ type LatLonBase = {
     lon: number;
 };
 
+// Matches any type that has LatLonBase as a subset
 export interface LatLon extends Required<LatLonBase> {}

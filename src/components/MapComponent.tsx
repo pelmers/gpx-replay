@@ -18,6 +18,7 @@ type Props = {
 
 type State = {
     useFollowCam: boolean;
+    useFollowTrack: boolean;
     mapStyle: string;
     // pointsPerFrame is a fixed value that means the number of points each frame
     // should advance so the entire route takes 1 minute to finish. Can be a fractional.
@@ -26,6 +27,9 @@ type State = {
     isPlaying: boolean;
     // multiply pointsPerSecond by playbackRate to decide how much to animate per second
     playbackRate: number;
+    gpxTrackWidth: number;
+    gpxTrackColor: string;
+    pointIcon: string;
 };
 
 export default class MapComponent extends React.Component<Props, State> {
@@ -55,13 +59,17 @@ export default class MapComponent extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            useFollowCam: true,
+            useFollowCam: false,
+            useFollowTrack: false,
             // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
             // divide by 60 seconds per minute
             pointsPerSecond: props.gpxInfo.points.length / 60,
             isPlaying: false,
-            playbackRate: 5,
+            playbackRate: 1,
+            gpxTrackWidth: 4,
+            gpxTrackColor: '#ff0',
+            pointIcon: 'bicycle-15',
         };
         const origin = toGeoJson(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
@@ -122,6 +130,8 @@ export default class MapComponent extends React.Component<Props, State> {
         if (this.progressRef.current != null) {
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
         }
+        // TODO: if followcam, do that here
+        // TODO: if followtrack, do that here too
     }
 
     componentWillUnmount(): void {
@@ -173,9 +183,8 @@ export default class MapComponent extends React.Component<Props, State> {
         await new Promise<void>((resolve) => {
             this.map.once('styledata', () => {
                 addSource('gpxTrack', gpsPoints, {
-                    // TODO: let user pick color/width?
-                    'line-color': '#ff0',
-                    'line-width': 4,
+                    'line-color': this.state.gpxTrackColor,
+                    'line-width': this.state.gpxTrackWidth,
                 });
                 this.map.addSource('point', {
                     type: 'geojson',
@@ -187,8 +196,7 @@ export default class MapComponent extends React.Component<Props, State> {
                     source: 'point',
                     type: 'symbol',
                     layout: {
-                        // TODO: allow customize the icon
-                        'icon-image': 'bicycle-15',
+                        'icon-image': this.state.pointIcon,
                         'icon-size': 2,
                         'icon-allow-overlap': true,
                         'icon-ignore-placement': true,
@@ -213,7 +221,8 @@ export default class MapComponent extends React.Component<Props, State> {
         // 1. map itself
         // 2. scrubbable progress bar, and playback rate (also slider?)
         // 3. followcam toggle
-        // 4. inputs for the different options:
+        // 4. draw route behind toggle
+        // 5. inputs for the different options:
         //  - constant speed or given speed
         //  - map style
         //  - icon type, icon size
@@ -240,7 +249,6 @@ export default class MapComponent extends React.Component<Props, State> {
                             {this.state.isPlaying ? '❚❚' : '►'}
                         </button>
                         <label className="play-percent" role="percentage indicator" />
-                        {/* TODO: on seek, update the icon position */}
                         <progress
                             max="100"
                             value="0"

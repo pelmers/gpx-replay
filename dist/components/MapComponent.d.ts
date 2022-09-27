@@ -6,10 +6,14 @@ declare type Props = {
 };
 declare type State = {
     useFollowCam: boolean;
+    useFollowTrack: boolean;
     mapStyle: string;
     pointsPerSecond: number;
     isPlaying: boolean;
     playbackRate: number;
+    gpxTrackWidth: number;
+    gpxTrackColor: string;
+    pointIcon: string;
 };
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;
