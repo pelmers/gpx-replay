@@ -366,7 +366,9 @@ export default class MapComponent extends React.Component<Props, State> {
                 <div className="center gpx-info">
                     Selected: <b>{this.props.gpxInfo.name}</b> ({mb.toFixed(2)} MB)
                 </div>
-                <div id="map-container" ref={this.mapDivRef} />
+                <div className="map-container-container">
+                    <div id="map-container" ref={this.mapDivRef} />
+                </div>
                 <div className="center">
                     <div className="progress-container">
                         <button
@@ -388,7 +390,12 @@ export default class MapComponent extends React.Component<Props, State> {
                         >
                             Progress
                         </progress>
+                        <button className="fullscreen-button" onClick={() => { this.mapDivRef.current!.requestFullscreen(); }}>
+                            Fullscreen
+                        </button>
                     </div>
+
+
                 </div>
                 <div className="center first-control-group">
                     <label>FollowCam</label>
