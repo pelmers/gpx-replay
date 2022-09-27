@@ -19,7 +19,6 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
     pairDistances.sort();
     const distanceCutoff =
         pairDistances[Math.floor(percentileCutoff * pairDistances.length)];
-    console.log('removing points of dist < ', distanceCutoff);
 
     // For smoothness, massage the gpx route by merging points in the bottom 20% of speed
     // the assumption here is that points are evenly spaced in time (maybe not always true?)
@@ -52,7 +51,7 @@ export default function parseGpxFile(
 
     const originalPoints = gpx.tracks[0].points;
     // TODO: make this points smoothing an option at import time
-    let points = applySmoothing ? smoothPoints(originalPoints, 0.2) : originalPoints;
+    let points = applySmoothing ? smoothPoints(originalPoints, 0.3) : originalPoints;
 
     const distance = {
         total: points

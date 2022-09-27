@@ -13,6 +13,7 @@ import {
 } from '../map';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
+import RangeSliderComponent from './RangeSliderComponent';
 
 const clamp = (num: number, lo: number, hi: number) =>
     num < lo ? lo : num > hi ? hi : num;
@@ -46,6 +47,7 @@ type Props = {
 
 type State = {
     useFollowCam: boolean;
+    followSensitivity: number;
     useFollowTrack: boolean;
     mapStyle: string;
     // pointsPerSecond is a fixed value that means the number of points each frame
@@ -58,6 +60,7 @@ type State = {
     gpxTrackWidth: number;
     gpxTrackColor: string;
     pointIcon: string;
+    pointIconSize: number;
 };
 
 export default class MapComponent extends React.Component<Props, State> {
@@ -88,6 +91,7 @@ export default class MapComponent extends React.Component<Props, State> {
         super(props);
         this.state = {
             useFollowCam: false,
+            followSensitivity: 45,
             useFollowTrack: false,
             // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
@@ -96,8 +100,9 @@ export default class MapComponent extends React.Component<Props, State> {
             isPlaying: false,
             playbackRate: 1,
             gpxTrackWidth: 4,
-            gpxTrackColor: '#ff0',
+            gpxTrackColor: '#ffff00',
             pointIcon: 'bicycle-15',
+            pointIconSize: 2,
         };
         const origin = toGeoJson(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
@@ -181,7 +186,7 @@ export default class MapComponent extends React.Component<Props, State> {
             // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
-            const changeCap = 30 * timeDeltaS;
+            const changeCap = this.state.followSensitivity * timeDeltaS;
             const fixedBearing = fixBearingDomain(
                 this.map.getBearing() + clamp(rot, -changeCap, changeCap)
             );
@@ -222,16 +227,38 @@ export default class MapComponent extends React.Component<Props, State> {
     }
 
     async componentDidMount() {
+        await this.createMapFromState(this.state);
+    }
+
+    handleProgressClick = (evt: { nativeEvent: { offsetX: number } }) => {
+        let offsetFraction =
+            evt.nativeEvent.offsetX / this.progressRef.current!.offsetWidth;
+        offsetFraction = Math.max(offsetFraction, 0);
+        offsetFraction = Math.min(offsetFraction, 1);
+        const newPosition = this.props.gpxInfo.points.length * offsetFraction;
+        this.updatePointPosition(newPosition, 0);
+        this.playhead = newPosition;
+    };
+
+    async createMapFromState(state: State) {
+        if (this.animationHandle != null) {
+            cancelAnimationFrame(this.animationHandle);
+        }
         const gpsPoints = this.props.gpxInfo.points;
-        this.map = new mapboxgl.Map({
-            container: this.mapDivRef.current!,
-            zoom: 16,
-            pitch: 0,
-            center: findCenter(gpsPoints),
-            style: this.state.mapStyle,
-            accessToken: MAPBOX_API_KEY,
-        });
-        this.map.fitBounds(findBounds(gpsPoints));
+        if (this.map == null) {
+            this.map = new mapboxgl.Map({
+                container: this.mapDivRef.current!,
+                zoom: 16,
+                pitch: 0,
+                center: findCenter(gpsPoints),
+                style: state.mapStyle,
+                accessToken: MAPBOX_API_KEY,
+            });
+            this.map.fitBounds(findBounds(gpsPoints));
+        } else {
+            // If we have already loaded the map, just set the style. Otherwise it's billable
+            this.map.setStyle(state.mapStyle);
+        }
         const addSource = (
             id: string,
             points: LatLon[],
@@ -252,8 +279,8 @@ export default class MapComponent extends React.Component<Props, State> {
         await new Promise<void>((resolve) => {
             this.map.once('styledata', () => {
                 addSource('gpxTrack', gpsPoints, {
-                    'line-color': this.state.gpxTrackColor,
-                    'line-width': this.state.gpxTrackWidth,
+                    'line-color': state.gpxTrackColor,
+                    'line-width': state.gpxTrackWidth,
                 });
                 this.map.addSource('point', {
                     type: 'geojson',
@@ -265,29 +292,22 @@ export default class MapComponent extends React.Component<Props, State> {
                     source: 'point',
                     type: 'symbol',
                     layout: {
-                        'icon-image': this.state.pointIcon,
-                        'icon-size': 2,
+                        'icon-image': state.pointIcon,
+                        'icon-size': state.pointIconSize,
                         'icon-allow-overlap': true,
                         'icon-ignore-placement': true,
                     },
                 });
+                if (this.state.useFollowTrack) {
+                    this.updateTrackDisplay(this.playhead);
+                }
                 resolve();
             });
         });
         requestAnimationFrame(this.animationLoop);
     }
 
-    handleProgressClick = (evt: { nativeEvent: { offsetX: number } }) => {
-        let offsetFraction =
-            evt.nativeEvent.offsetX / this.progressRef.current!.offsetWidth;
-        offsetFraction = Math.max(offsetFraction, 0);
-        offsetFraction = Math.min(offsetFraction, 1);
-        const newPosition = this.props.gpxInfo.points.length * offsetFraction;
-        this.updatePointPosition(newPosition, 0);
-        this.playhead = newPosition;
-    };
-
-    componentWillUpdate(props: Props, nextState: State) {
+    async componentWillUpdate(props: Props, nextState: State) {
         // Did we toggle followcam?
         if (nextState.useFollowCam !== this.state.useFollowCam) {
             // Then update the camera on the map
@@ -312,21 +332,34 @@ export default class MapComponent extends React.Component<Props, State> {
         } else {
             this.updateTrackDisplay(props.gpxInfo.points.length - 1);
         }
+        if (nextState.mapStyle !== this.state.mapStyle) {
+            // Changing the style also resets the track and stuff, just re-create it.
+            await this.createMapFromState(nextState);
+        }
+        if (nextState.pointIcon !== this.state.pointIcon) {
+            this.map.setLayoutProperty('point', 'icon-image', nextState.pointIcon);
+        }
+        if (nextState.pointIconSize !== this.state.pointIconSize) {
+            this.map.setLayoutProperty('point', 'icon-size', nextState.pointIconSize);
+        }
+        if (nextState.gpxTrackColor !== this.state.gpxTrackColor) {
+            this.map.setPaintProperty(
+                'gpxTrack',
+                'line-color',
+                nextState.gpxTrackColor
+            );
+        }
+        if (nextState.gpxTrackWidth !== this.state.gpxTrackWidth) {
+            this.map.setPaintProperty(
+                'gpxTrack',
+                'line-width',
+                nextState.gpxTrackWidth
+            );
+        }
     }
 
     render() {
-        // TODO outline:
-        // 1. map itself
-        // 2. scrubbable progress bar, and playback rate (also slider?)
-        // 3. followcam toggle
-        // 4. draw route behind toggle
-        // 5. inputs for the different options:
-        //  - constant speed or given speed
-        //  - map style
-        //  - icon type, icon size
-        //  - line color, line thickness
-        // bonus:
-        // - elevation profile?
+        // TODO bonus: elevation profile?
         const mb = this.props.gpxInfo.sizeBytes / 1000000;
         return (
             <>
@@ -346,7 +379,6 @@ export default class MapComponent extends React.Component<Props, State> {
                         >
                             {this.state.isPlaying ? '❚❚' : '►'}
                         </button>
-                        <label className="play-percent" role="percentage indicator" />
                         <progress
                             max="100"
                             value="0"
@@ -357,10 +389,9 @@ export default class MapComponent extends React.Component<Props, State> {
                             Progress
                         </progress>
                     </div>
-                    {/* TODO: options for the things */}
                 </div>
-                <div className="center control-group">
-                    Use FollowCam{' '}
+                <div className="center first-control-group">
+                    <label>FollowCam</label>
                     <input
                         type="checkbox"
                         defaultChecked={this.state.useFollowCam}
@@ -368,7 +399,7 @@ export default class MapComponent extends React.Component<Props, State> {
                             this.setState({ useFollowCam: !this.state.useFollowCam })
                         }
                     />
-                    Use FollowTrack{' '}
+                    <label>FollowTrack</label>
                     <input
                         type="checkbox"
                         defaultChecked={this.state.useFollowTrack}
@@ -377,6 +408,103 @@ export default class MapComponent extends React.Component<Props, State> {
                                 useFollowTrack: !this.state.useFollowTrack,
                             })
                         }
+                    />
+                </div>
+                <div className="center control-group">
+                    <RangeSliderComponent
+                        label="Follow Sensitivity"
+                        min={0}
+                        max={180}
+                        step={1}
+                        value={this.state.followSensitivity}
+                        onChange={(v) => this.setState({ followSensitivity: v })}
+                    />
+
+                    <RangeSliderComponent
+                        label={'Playback Rate'}
+                        min={0.2}
+                        max={20}
+                        step={0.2}
+                        value={this.state.playbackRate}
+                        onChange={(value) => this.setState({ playbackRate: value })}
+                    />
+                </div>
+                <div className="center control-group">
+                    {/* styles from https://docs.mapbox.com/api/maps/styles/ */}
+                    <label htmlFor="map-style">Map Style</label>
+                    <select
+                        name="map style"
+                        onChange={(evt) => {
+                            this.setState({ mapStyle: evt.target.value });
+                        }}
+                        defaultValue={this.state.mapStyle}
+                    >
+                        <option value="mapbox://styles/mapbox/outdoors-v11">
+                            Outdoors
+                        </option>
+                        <option value="mapbox://styles/mapbox/streets-v11">
+                            Streets
+                        </option>
+                        <option value="mapbox://styles/mapbox/light-v10">Light</option>
+                        <option value="mapbox://styles/mapbox/dark-v10">Dark</option>
+                        <option value="mapbox://styles/mapbox/satellite-v9">
+                            Satellite
+                        </option>
+                        <option value="mapbox://styles/mapbox/satellite-streets-v11">
+                            Satellite Streets
+                        </option>
+                        <option value="mapbox://styles/mapbox/navigation-day-v1">
+                            Navigation Day
+                        </option>
+                        <option value="mapbox://styles/mapbox/navigation-night-v1">
+                            Navigation Night
+                        </option>
+                    </select>
+
+                    {/* List available at https://github.com/mapbox/mapbox-gl-styles#standard-icons  */}
+                    <label>Point Icon</label>
+                    <select
+                        defaultValue={this.state.pointIcon}
+                        onChange={(evt) => {
+                            this.setState({ pointIcon: evt.target.value });
+                        }}
+                    >
+                        <option value="bicycle-15">Bicycle</option>
+                        <option value="rocket-15">Rocket</option>
+                        <option value="swimming-15">Swimmer</option>
+                        <option value="bus-15">Bus</option>
+                        <option value="rail-15">Train</option>
+                        <option value="pitch-15">Runner</option>
+                        <option value="car-15">Death Cage</option>
+                        <option value="circle-15">Circle</option>
+                    </select>
+
+                    <RangeSliderComponent
+                        label={'Point Icon Size'}
+                        min={0.0}
+                        max={25}
+                        step={0.5}
+                        value={this.state.pointIconSize}
+                        onChange={(value) => this.setState({ pointIconSize: value })}
+                    />
+
+                    <label htmlFor="line-color">Line Color</label>
+                    <input
+                        type="color"
+                        name="line-color"
+                        defaultValue={this.state.gpxTrackColor}
+                        onChange={(ev) => {
+                            this.setState({ gpxTrackColor: ev.target.value });
+                        }}
+                    />
+
+                    <RangeSliderComponent
+                        label={'Line Thickness'}
+                        min={0.0}
+                        max={30}
+                        step={0.5}
+                        value={this.state.gpxTrackWidth}
+                        onChange={(value) => this.setState({ gpxTrackWidth: value })}
                     />
                 </div>
             </>

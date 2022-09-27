@@ -7,6 +7,7 @@ declare type Props = {
 };
 declare type State = {
     useFollowCam: boolean;
+    followSensitivity: number;
     useFollowTrack: boolean;
     mapStyle: string;
     pointsPerSecond: number;
@@ -15,6 +16,7 @@ declare type State = {
     gpxTrackWidth: number;
     gpxTrackColor: string;
     pointIcon: string;
+    pointIconSize: number;
 };
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;
@@ -52,7 +54,8 @@ export default class MapComponent extends React.Component<Props, State> {
             offsetX: number;
         };
     }) => void;
-    componentWillUpdate(props: Props, nextState: State): void;
+    createMapFromState(state: State): Promise<void>;
+    componentWillUpdate(props: Props, nextState: State): Promise<void>;
     render(): JSX.Element;
 }
 export {};

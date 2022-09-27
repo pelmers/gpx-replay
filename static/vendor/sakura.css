@@ -224,9 +224,6 @@ textarea,
 select,
 input {
     color: #4a4a4a;
-    padding: 6px 10px;
-    /* The 6px vertically centers text on FF, ignored by Webkit */
-    margin-bottom: 10px;
     background-color: #f1f1f1;
     border: 1px solid #f1f1f1;
     border-radius: 4px;

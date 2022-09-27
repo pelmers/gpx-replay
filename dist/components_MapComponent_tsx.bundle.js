@@ -18,6 +18,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mapbox-gl */ "../node_modules/mapbox-gl/dist/mapbox-gl.js");
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(mapbox_gl__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _turf_turf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @turf/turf */ "../node_modules/@turf/turf/dist/es/index.js");
+/* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -27,6 +28,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -91,7 +93,6 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             // cap at 120 fps
             const minAnimationTime = 1000 / 40;
             if (t - this.lastAnimationTime > minAnimationTime) {
-                console.log('enter animation body');
                 this.animationBody(t - this.lastAnimationTime);
                 this.lastAnimationTime = t;
             }
@@ -107,6 +108,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         };
         this.state = {
             useFollowCam: false,
+            followSensitivity: 45,
             useFollowTrack: false,
             // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
@@ -115,8 +117,9 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             isPlaying: false,
             playbackRate: 1,
             gpxTrackWidth: 4,
-            gpxTrackColor: '#ff0',
+            gpxTrackColor: '#ffff00',
             pointIcon: 'bicycle-15',
+            pointIconSize: 2,
         };
         const origin = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
@@ -169,7 +172,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
-            const changeCap = 30 * timeDeltaS;
+            const changeCap = this.state.followSensitivity * timeDeltaS;
             const fixedBearing = fixBearingDomain(this.map.getBearing() + clamp(rot, -changeCap, changeCap));
             const center = point.geometry.coordinates;
             this.map.easeTo({
@@ -207,16 +210,30 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
     }
     componentDidMount() {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.createMapFromState(this.state);
+        });
+    }
+    createMapFromState(state) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.animationHandle != null) {
+                cancelAnimationFrame(this.animationHandle);
+            }
             const gpsPoints = this.props.gpxInfo.points;
-            this.map = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().Map)({
-                container: this.mapDivRef.current,
-                zoom: 16,
-                pitch: 0,
-                center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(gpsPoints),
-                style: this.state.mapStyle,
-                accessToken: _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__.MAPBOX_API_KEY,
-            });
-            this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(gpsPoints));
+            if (this.map == null) {
+                this.map = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().Map)({
+                    container: this.mapDivRef.current,
+                    zoom: 16,
+                    pitch: 0,
+                    center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(gpsPoints),
+                    style: state.mapStyle,
+                    accessToken: _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__.MAPBOX_API_KEY,
+                });
+                this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(gpsPoints));
+            }
+            else {
+                // If we have already loaded the map, just set the style. Otherwise it's billable
+                this.map.setStyle(state.mapStyle);
+            }
             const addSource = (id, points, params) => {
                 this.map.addSource(id, (0,_map__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(points)).addLayer({
                     id,
@@ -232,8 +249,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             yield new Promise((resolve) => {
                 this.map.once('styledata', () => {
                     addSource('gpxTrack', gpsPoints, {
-                        'line-color': this.state.gpxTrackColor,
-                        'line-width': this.state.gpxTrackWidth,
+                        'line-color': state.gpxTrackColor,
+                        'line-width': state.gpxTrackWidth,
                     });
                     this.map.addSource('point', {
                         type: 'geojson',
@@ -244,12 +261,15 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                         source: 'point',
                         type: 'symbol',
                         layout: {
-                            'icon-image': this.state.pointIcon,
-                            'icon-size': 2,
+                            'icon-image': state.pointIcon,
+                            'icon-size': state.pointIconSize,
                             'icon-allow-overlap': true,
                             'icon-ignore-placement': true,
                         },
                     });
+                    if (this.state.useFollowTrack) {
+                        this.updateTrackDisplay(this.playhead);
+                    }
                     resolve();
                 });
             });
@@ -257,46 +277,53 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         });
     }
     componentWillUpdate(props, nextState) {
-        // Did we toggle followcam?
-        if (nextState.useFollowCam !== this.state.useFollowCam) {
-            // Then update the camera on the map
-            if (nextState.useFollowCam) {
-                this.map.easeTo({
-                    zoom: 14.5,
-                    pitch: 60,
-                    center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[Math.floor(this.playhead)]),
-                });
+        return __awaiter(this, void 0, void 0, function* () {
+            // Did we toggle followcam?
+            if (nextState.useFollowCam !== this.state.useFollowCam) {
+                // Then update the camera on the map
+                if (nextState.useFollowCam) {
+                    this.map.easeTo({
+                        zoom: 14.5,
+                        pitch: 60,
+                        center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[Math.floor(this.playhead)]),
+                    });
+                }
+                else {
+                    this.map.easeTo({
+                        pitch: 0,
+                        center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(props.gpxInfo.points),
+                        animate: false,
+                        bearing: 0,
+                    });
+                    this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(props.gpxInfo.points));
+                }
+            }
+            if (nextState.useFollowTrack) {
+                this.updateTrackDisplay(this.playhead);
             }
             else {
-                this.map.easeTo({
-                    pitch: 0,
-                    center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(props.gpxInfo.points),
-                    animate: false,
-                    bearing: 0,
-                });
-                this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(props.gpxInfo.points));
+                this.updateTrackDisplay(props.gpxInfo.points.length - 1);
             }
-        }
-        if (nextState.useFollowTrack) {
-            this.updateTrackDisplay(this.playhead);
-        }
-        else {
-            this.updateTrackDisplay(props.gpxInfo.points.length - 1);
-        }
+            if (nextState.mapStyle !== this.state.mapStyle) {
+                // Changing the style also resets the track and stuff, just re-create it.
+                yield this.createMapFromState(nextState);
+            }
+            if (nextState.pointIcon !== this.state.pointIcon) {
+                this.map.setLayoutProperty('point', 'icon-image', nextState.pointIcon);
+            }
+            if (nextState.pointIconSize !== this.state.pointIconSize) {
+                this.map.setLayoutProperty('point', 'icon-size', nextState.pointIconSize);
+            }
+            if (nextState.gpxTrackColor !== this.state.gpxTrackColor) {
+                this.map.setPaintProperty('gpxTrack', 'line-color', nextState.gpxTrackColor);
+            }
+            if (nextState.gpxTrackWidth !== this.state.gpxTrackWidth) {
+                this.map.setPaintProperty('gpxTrack', 'line-width', nextState.gpxTrackWidth);
+            }
+        });
     }
     render() {
-        // TODO outline:
-        // 1. map itself
-        // 2. scrubbable progress bar, and playback rate (also slider?)
-        // 3. followcam toggle
-        // 4. draw route behind toggle
-        // 5. inputs for the different options:
-        //  - constant speed or given speed
-        //  - map style
-        //  - icon type, icon size
-        //  - line color, line thickness
-        // bonus:
-        // - elevation profile?
+        // TODO bonus: elevation profile?
         const mb = this.props.gpxInfo.sizeBytes / 1000000;
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center gpx-info" },
@@ -309,17 +336,75 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { className: "play-percent", role: "percentage indicator" }),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"))),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
-                "Use FollowCam",
-                ' ',
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center first-control-group" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({ useFollowCam: !this.state.useFollowCam }) }),
-                "Use FollowTrack",
-                ' ',
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowTrack"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowTrack, onChange: () => this.setState({
                         useFollowTrack: !this.state.useFollowTrack,
-                    }) }))));
+                    }) })),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Playback Rate', min: 0.2, max: 20, step: 0.2, value: this.state.playbackRate, onChange: (value) => this.setState({ playbackRate: value }) })),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "map-style" }, "Map Style"),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { name: "map style", onChange: (evt) => {
+                        this.setState({ mapStyle: evt.target.value });
+                    }, defaultValue: this.state.mapStyle },
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/outdoors-v11" }, "Outdoors"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/streets-v11" }, "Streets"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/light-v10" }, "Light"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/dark-v10" }, "Dark"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/satellite-v9" }, "Satellite"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/satellite-streets-v11" }, "Satellite Streets"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/navigation-day-v1" }, "Navigation Day"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/navigation-night-v1" }, "Navigation Night")),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "Point Icon"),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { defaultValue: this.state.pointIcon, onChange: (evt) => {
+                        this.setState({ pointIcon: evt.target.value });
+                    } },
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bicycle-15" }, "Bicycle"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rocket-15" }, "Rocket"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "swimming-15" }, "Swimmer"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bus-15" }, "Bus"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rail-15" }, "Train"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "pitch-15" }, "Runner"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "car-15" }, "Death Cage"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "circle-15" }, "Circle")),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Point Icon Size', min: 0.0, max: 25, step: 0.5, value: this.state.pointIconSize, onChange: (value) => this.setState({ pointIconSize: value }) }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "line-color" }, "Line Color"),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "color", name: "line-color", defaultValue: this.state.gpxTrackColor, onChange: (ev) => {
+                        this.setState({ gpxTrackColor: ev.target.value });
+                    } }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Line Thickness', min: 0.0, max: 30, step: 0.5, value: this.state.gpxTrackWidth, onChange: (value) => this.setState({ gpxTrackWidth: value }) }))));
+    }
+}
+
+
+/***/ }),
+
+/***/ "./components/RangeSliderComponent.tsx":
+/*!*********************************************!*\
+  !*** ./components/RangeSliderComponent.tsx ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ RangeSliderComponent)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+// React component that renders a range slider with a label and callback on change
+
+class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
+    render() {
+        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(1)),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) }))));
     }
 }
 
