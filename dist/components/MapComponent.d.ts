@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 declare type Props = {
     gpxInfo: GpxInfo;
+    bindSpace: boolean;
 };
 declare type State = {
     useFollowCam: boolean;
@@ -47,6 +48,7 @@ export default class MapComponent extends React.Component<Props, State> {
     };
     updatePointPosition(newPosition: number, timeDeltaS: number): void;
     updateTrackDisplay(position: number): void;
+    windowSpaceBind: (e: KeyboardEvent) => void;
     componentWillUnmount(): void;
     componentDidMount(): Promise<void>;
     handleProgressClick: (evt: {

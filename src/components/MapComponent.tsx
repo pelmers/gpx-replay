@@ -20,6 +20,7 @@ import RangeSliderComponent from './RangeSliderComponent';
 
 type Props = {
     gpxInfo: GpxInfo;
+    bindSpace: boolean;
 };
 
 type State = {
@@ -197,14 +198,29 @@ export default class MapComponent extends React.Component<Props, State> {
         }
     }
 
+    windowSpaceBind = (e: KeyboardEvent) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.setState({ isPlaying: !this.state.isPlaying });
+        }
+    };
+
     componentWillUnmount(): void {
         if (this.animationHandle != null) {
             cancelAnimationFrame(this.animationHandle);
+        }
+        if (this.props.bindSpace) {
+            window.removeEventListener('keydown', this.windowSpaceBind);
         }
     }
 
     async componentDidMount() {
         await this.createMapFromState(this.state);
+        if (this.props.bindSpace) {
+            // Bind window space to play/pause
+            window.addEventListener('keydown', this.windowSpaceBind);
+        }
     }
 
     handleProgressClick = (evt: { nativeEvent: { offsetX: number } }) => {
@@ -367,12 +383,15 @@ export default class MapComponent extends React.Component<Props, State> {
                         >
                             Progress
                         </progress>
-                        <button className="fullscreen-button" onClick={() => { this.mapDivRef.current!.requestFullscreen(); }}>
+                        <button
+                            className="fullscreen-button"
+                            onClick={() => {
+                                this.mapDivRef.current!.requestFullscreen();
+                            }}
+                        >
                             Fullscreen
                         </button>
                     </div>
-
-
                 </div>
                 <div className="center first-control-group">
                     <label>FollowCam</label>

@@ -75,6 +75,13 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             }
             this.animationHandle = requestAnimationFrame(this.animationLoop);
         };
+        this.windowSpaceBind = (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                this.setState({ isPlaying: !this.state.isPlaying });
+            }
+        };
         this.handleProgressClick = (evt) => {
             let offsetFraction = evt.nativeEvent.offsetX / this.progressRef.current.offsetWidth;
             offsetFraction = Math.max(offsetFraction, 0);
@@ -184,10 +191,17 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         if (this.animationHandle != null) {
             cancelAnimationFrame(this.animationHandle);
         }
+        if (this.props.bindSpace) {
+            window.removeEventListener('keydown', this.windowSpaceBind);
+        }
     }
     componentDidMount() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.createMapFromState(this.state);
+            if (this.props.bindSpace) {
+                // Bind window space to play/pause
+                window.addEventListener('keydown', this.windowSpaceBind);
+            }
         });
     }
     createMapFromState(state) {
@@ -315,7 +329,9 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { className: "fullscreen-button", onClick: () => { this.mapDivRef.current.requestFullscreen(); } }, "Fullscreen"))),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { className: "fullscreen-button", onClick: () => {
+                            this.mapDivRef.current.requestFullscreen();
+                        } }, "Fullscreen"))),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center first-control-group" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({ useFollowCam: !this.state.useFollowCam }) }),

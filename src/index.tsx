@@ -53,7 +53,12 @@ class App extends React.Component<{}, State> {
                 </>
             );
         } else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
-            return <this.state.mapComponent gpxInfo={this.state.gpxInfo} />;
+            return (
+                <this.state.mapComponent
+                    gpxInfo={this.state.gpxInfo}
+                    bindSpace={true}
+                />
+            );
         } else {
             return <LoadGpxComponent onGpxLoad={this.onFileAdded} />;
         }
