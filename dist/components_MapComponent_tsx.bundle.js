@@ -536,7 +536,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MAPBOX_API_KEY": () => (/* binding */ MAPBOX_API_KEY)
 /* harmony export */ });
-const MAPBOX_API_KEY = 'pk.eyJ1IjoicGVsbWVycyIsImEiOiJjbDg5N2N5Nm0wMzU2M25qeHIzdjl5dm1pIn0.eIGsKaeGa_O7bELSprhD8A';
+const MAPBOX_API_KEY = 'pk.eyJ1IjoicGVsbWVycyIsImEiOiJjbDhrbjIyYnUwejhyM3ZyMDVlZnB2a3h6In0.M-JOZDdOSziLjIVuHLhXjw';
 
 
 /***/ })
