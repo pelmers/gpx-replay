@@ -14,7 +14,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../mapboxApiKey */ "./mapboxApiKey.ts");
-/* harmony import */ var _map__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../map */ "./map.ts");
+/* harmony import */ var _mapTools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../mapTools */ "./mapTools.ts");
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mapbox-gl */ "../node_modules/mapbox-gl/dist/mapbox-gl.js");
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(mapbox_gl__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _turf_turf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @turf/turf */ "../node_modules/@turf/turf/dist/es/index.js");
@@ -34,29 +34,6 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-const clamp = (num, lo, hi) => num < lo ? lo : num > hi ? hi : num;
-// Given bearings a and b in the range [-180, 180], return the short angle that moves a to b.
-// examples:
-// if a is 10 and b is -10, then the answer is -20.
-// if a is -10 and b is 10, then the answer is 20.
-// if a is -170 and b is 170, then the answer is -20.
-// if a is 170 and b is -170, then the answer is 20.
-const bearingDiff = (a, b) => {
-    // diff will be in the range [0, 360]
-    const diff = Math.abs(b - a);
-    const sign = b > a ? 1 : -1;
-    return sign * (diff > 180 ? -(360 - diff) : diff);
-};
-// Fix a bearing between [-360, 360] to [-180, 180]
-const fixBearingDomain = (b) => {
-    if (b < -180) {
-        return 360 + b;
-    }
-    else if (b > 180) {
-        return -360 + b;
-    }
-    return b;
-};
 class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor(props) {
         super(props);
@@ -121,7 +98,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             pointIcon: 'bicycle-15',
             pointIconSize: 2,
         };
-        const origin = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[0]);
+        const origin = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
     }
     animationBody(timeDeltaMs) {
@@ -141,12 +118,12 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
     interpolatePoint(position) {
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(position);
-        const currentFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
-        const nextFrameFeature = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex + 1]);
+        const currentFrameFeature = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
+        const nextFrameFeature = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex + 1]);
         const nextDist = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.distance(currentFrameFeature, nextFrameFeature);
         const bearing = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.bearing(currentFrameFeature, nextFrameFeature);
         return {
-            point: _turf_turf__WEBPACK_IMPORTED_MODULE_4__.along((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonLineString)(points[pointIndex], points[pointIndex + 1]), nextDist * (position - pointIndex)),
+            point: _turf_turf__WEBPACK_IMPORTED_MODULE_4__.along((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonLineString)(points[pointIndex], points[pointIndex + 1]), nextDist * (position - pointIndex)),
             bearing,
         };
     }
@@ -154,7 +131,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(newPosition);
         if (pointIndex === points.length - 1) {
-            this.point.features[0] = (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
+            this.point.features[0] = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJsonFeature)(points[pointIndex]);
             return;
         }
         const { point, bearing } = this.interpolatePoint(newPosition);
@@ -168,12 +145,12 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
         }
         if (this.state.useFollowCam) {
-            const rot = bearingDiff(this.map.getBearing(), bearing);
+            const rot = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.bearingDiff)(this.map.getBearing(), bearing);
             // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
             const changeCap = this.state.followSensitivity * timeDeltaS;
-            const fixedBearing = fixBearingDomain(this.map.getBearing() + clamp(rot, -changeCap, changeCap));
+            const fixedBearing = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.fixBearingDomain)(this.map.getBearing() + (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.clamp)(rot, -changeCap, changeCap));
             const center = point.geometry.coordinates;
             this.map.easeTo({
                 // @ts-ignore bug in typings
@@ -193,14 +170,14 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         const { points } = this.props.gpxInfo;
         if (pointIndex === points.length - 1) {
             const source = this.map.getSource('gpxTrack');
-            source.setData((0,_map__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(points).data);
+            source.setData((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(points).data);
         }
         else {
             const sliceToPlayhead = points.slice(0, pointIndex + 1);
-            sliceToPlayhead.push((0,_map__WEBPACK_IMPORTED_MODULE_2__.geoJsonToPoint)(this.interpolatePoint(position).point));
+            sliceToPlayhead.push((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.geoJsonToPoint)(this.interpolatePoint(position).point));
             const source = this.map.getSource('gpxTrack');
             // TODO: this seems to lag with followcam and lots of points?
-            source.setData((0,_map__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(sliceToPlayhead).data);
+            source.setData((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(sliceToPlayhead).data);
         }
     }
     componentWillUnmount() {
@@ -224,18 +201,18 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     container: this.mapDivRef.current,
                     zoom: 16,
                     pitch: 0,
-                    center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(gpsPoints),
+                    center: (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.findCenter)(gpsPoints),
                     style: state.mapStyle,
                     accessToken: _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__.MAPBOX_API_KEY,
                 });
-                this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(gpsPoints));
+                this.map.fitBounds((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.findBounds)(gpsPoints));
             }
             else {
                 // If we have already loaded the map, just set the style. Otherwise it's billable
                 this.map.setStyle(state.mapStyle);
             }
             const addSource = (id, points, params) => {
-                this.map.addSource(id, (0,_map__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(points)).addLayer({
+                this.map.addSource(id, (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.pointsToGeoJsonFeature)(points)).addLayer({
                     id,
                     type: 'line',
                     source: id,
@@ -285,17 +262,17 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     this.map.easeTo({
                         zoom: 14.5,
                         pitch: 60,
-                        center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[Math.floor(this.playhead)]),
+                        center: (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[Math.floor(this.playhead)]),
                     });
                 }
                 else {
                     this.map.easeTo({
                         pitch: 0,
-                        center: (0,_map__WEBPACK_IMPORTED_MODULE_2__.findCenter)(props.gpxInfo.points),
+                        center: (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.findCenter)(props.gpxInfo.points),
                         animate: false,
                         bearing: 0,
                     });
-                    this.map.fitBounds((0,_map__WEBPACK_IMPORTED_MODULE_2__.findBounds)(props.gpxInfo.points));
+                    this.map.fitBounds((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.findBounds)(props.gpxInfo.points));
                 }
             }
             if (nextState.useFollowTrack) {
@@ -413,16 +390,19 @@ class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default()
 
 /***/ }),
 
-/***/ "./map.ts":
-/*!****************!*\
-  !*** ./map.ts ***!
-  \****************/
+/***/ "./mapTools.ts":
+/*!*********************!*\
+  !*** ./mapTools.ts ***!
+  \*********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "bearingDiff": () => (/* binding */ bearingDiff),
+/* harmony export */   "clamp": () => (/* binding */ clamp),
 /* harmony export */   "findBounds": () => (/* binding */ findBounds),
 /* harmony export */   "findCenter": () => (/* binding */ findCenter),
+/* harmony export */   "fixBearingDomain": () => (/* binding */ fixBearingDomain),
 /* harmony export */   "geoJsonToPoint": () => (/* binding */ geoJsonToPoint),
 /* harmony export */   "pointsToGeoJsonFeature": () => (/* binding */ pointsToGeoJsonFeature),
 /* harmony export */   "toGeoJson": () => (/* binding */ toGeoJson),
@@ -503,6 +483,29 @@ function findBounds(gpsPoints) {
         },
     ];
 }
+const clamp = (num, lo, hi) => num < lo ? lo : num > hi ? hi : num;
+// Given bearings a and b in the range [-180, 180], return the short angle that moves a to b.
+// examples:
+// if a is 10 and b is -10, then the answer is -20.
+// if a is -10 and b is 10, then the answer is 20.
+// if a is -170 and b is 170, then the answer is -20.
+// if a is 170 and b is -170, then the answer is 20.
+const bearingDiff = (a, b) => {
+    // diff will be in the range [0, 360]
+    const diff = Math.abs(b - a);
+    const sign = b > a ? 1 : -1;
+    return sign * (diff > 180 ? -(360 - diff) : diff);
+};
+// Fix a bearing between [-360, 360] to [-180, 180]
+const fixBearingDomain = (b) => {
+    if (b < -180) {
+        return 360 + b;
+    }
+    else if (b > 180) {
+        return -360 + b;
+    }
+    return b;
+};
 
 
 /***/ }),

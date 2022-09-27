@@ -2,7 +2,7 @@ import GpxParser from 'gpxparser';
 import * as turf from '@turf/turf';
 
 import { GpxInfo, LatLon } from './types';
-import { toGeoJson } from './map';
+import { toGeoJson } from './mapTools';
 
 function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
     // Collect the distance from each point to the next point

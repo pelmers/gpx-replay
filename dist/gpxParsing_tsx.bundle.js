@@ -44,7 +44,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var gpxparser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gpxparser */ "../node_modules/gpxparser/dist/GPXParser.min.js");
 /* harmony import */ var gpxparser__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(gpxparser__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _turf_turf__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @turf/turf */ "../node_modules/@turf/turf/dist/es/index.js");
-/* harmony import */ var _map__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./map */ "./map.ts");
+/* harmony import */ var _mapTools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mapTools */ "./mapTools.ts");
 
 
 
@@ -53,7 +53,7 @@ function smoothPoints(originalPoints, percentileCutoff) {
     // length = originalPoints.length - 1
     const pairDistances = [];
     for (let i = 0; i < originalPoints.length - 1; i++) {
-        pairDistances.push(_turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i]), (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i + 1])));
+        pairDistances.push(_turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i]), (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i + 1])));
     }
     pairDistances.sort();
     const distanceCutoff = pairDistances[Math.floor(percentileCutoff * pairDistances.length)];
@@ -65,7 +65,7 @@ function smoothPoints(originalPoints, percentileCutoff) {
         let segmentStart = originalPoints[idx];
         let summedDistance = 0;
         while (summedDistance < distanceCutoff && idx < originalPoints.length - 1) {
-            summedDistance += _turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[idx]), (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[idx + 1]));
+            summedDistance += _turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[idx]), (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[idx + 1]));
             idx += 1;
         }
         smoothedPoints.push(segmentStart, originalPoints[idx]);
@@ -84,7 +84,7 @@ function parseGpxFile(gpxContents, applySmoothing = true) {
     const distance = {
         total: points
             .slice(1)
-            .reduce((acc, cur, idx) => acc + _turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(cur), (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(points[idx])), 0),
+            .reduce((acc, cur, idx) => acc + _turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(cur), (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(points[idx])), 0),
     };
     return {
         distance,
@@ -97,17 +97,20 @@ function parseGpxFile(gpxContents, applySmoothing = true) {
 
 /***/ }),
 
-/***/ "./map.ts":
-/*!****************!*\
-  !*** ./map.ts ***!
-  \****************/
+/***/ "./mapTools.ts":
+/*!*********************!*\
+  !*** ./mapTools.ts ***!
+  \*********************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "bearingDiff": () => (/* binding */ bearingDiff),
+/* harmony export */   "clamp": () => (/* binding */ clamp),
 /* harmony export */   "findBounds": () => (/* binding */ findBounds),
 /* harmony export */   "findCenter": () => (/* binding */ findCenter),
+/* harmony export */   "fixBearingDomain": () => (/* binding */ fixBearingDomain),
 /* harmony export */   "geoJsonToPoint": () => (/* binding */ geoJsonToPoint),
 /* harmony export */   "pointsToGeoJsonFeature": () => (/* binding */ pointsToGeoJsonFeature),
 /* harmony export */   "toGeoJson": () => (/* binding */ toGeoJson),
@@ -188,6 +191,29 @@ function findBounds(gpsPoints) {
         },
     ];
 }
+const clamp = (num, lo, hi) => num < lo ? lo : num > hi ? hi : num;
+// Given bearings a and b in the range [-180, 180], return the short angle that moves a to b.
+// examples:
+// if a is 10 and b is -10, then the answer is -20.
+// if a is -10 and b is 10, then the answer is 20.
+// if a is -170 and b is 170, then the answer is -20.
+// if a is 170 and b is -170, then the answer is 20.
+const bearingDiff = (a, b) => {
+    // diff will be in the range [0, 360]
+    const diff = Math.abs(b - a);
+    const sign = b > a ? 1 : -1;
+    return sign * (diff > 180 ? -(360 - diff) : diff);
+};
+// Fix a bearing between [-360, 360] to [-180, 180]
+const fixBearingDomain = (b) => {
+    if (b < -180) {
+        return 360 + b;
+    }
+    else if (b > 180) {
+        return -360 + b;
+    }
+    return b;
+};
 
 
 /***/ })
