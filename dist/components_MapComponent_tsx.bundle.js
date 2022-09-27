@@ -340,7 +340,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                         useFollowTrack: !this.state.useFollowTrack,
                     }) })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) }),
+                this.state.useFollowCam && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) })),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Playback Rate', min: 0.2, max: 20, step: 0.2, value: this.state.playbackRate, onChange: (value) => this.setState({ playbackRate: value }) })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "map-style" }, "Map Style"),

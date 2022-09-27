@@ -414,14 +414,16 @@ export default class MapComponent extends React.Component<Props, State> {
                     />
                 </div>
                 <div className="center control-group">
-                    <RangeSliderComponent
-                        label="Follow Sensitivity"
-                        min={0}
-                        max={180}
-                        step={1}
-                        value={this.state.followSensitivity}
-                        onChange={(v) => this.setState({ followSensitivity: v })}
-                    />
+                    {this.state.useFollowCam && (
+                        <RangeSliderComponent
+                            label="Follow Sensitivity"
+                            min={0}
+                            max={180}
+                            step={1}
+                            value={this.state.followSensitivity}
+                            onChange={(v) => this.setState({ followSensitivity: v })}
+                        />
+                    )}
 
                     <RangeSliderComponent
                         label={'Playback Rate'}
