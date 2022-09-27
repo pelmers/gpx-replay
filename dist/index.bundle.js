@@ -33778,7 +33778,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                 const [mapComponent, gpxContents, gpxParse] = yield Promise.all([
                     Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_turf_turf_dist_es_index_js"), __webpack_require__.e("vendors-node_modules_mapbox-gl_dist_mapbox-gl_js"), __webpack_require__.e("components_MapComponent_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./components/MapComponent */ "./components/MapComponent.tsx")),
                     file.text(),
-                    Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_turf_turf_dist_es_index_js"), __webpack_require__.e("gpxParsing_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./gpxParsing */ "./gpxParsing.tsx"))
+                    Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_turf_turf_dist_es_index_js"), __webpack_require__.e("gpxParsing_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./gpxParsing */ "./gpxParsing.tsx")),
                 ]);
                 // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
                 this.setState({

@@ -80,10 +80,18 @@ function parseGpxFile(gpxContents, applySmoothing = true) {
     const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_0___default())();
     gpx.parse(gpxContents);
     const originalPoints = gpx.tracks[0].points;
+    // TODO: make this points smoothing an option at import time
+    let points = applySmoothing ? smoothPoints(originalPoints, 0.2) : originalPoints;
+    // TODO: test hypothesis: too many points = slow perf
+    points = points.slice(0, 1000);
+    const distance = {
+        total: points
+            .slice(1)
+            .reduce((acc, cur, idx) => acc + _turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(cur), (0,_map__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(points[idx])), 0),
+    };
     return {
-        distance: gpx.tracks[0].distance,
-        // TODO: make this points smoothing an option at import time
-        points: (applySmoothing) ? smoothPoints(originalPoints, 0.2) : originalPoints,
+        distance,
+        points,
         name: gpx.tracks[0].name,
         sizeBytes: gpxContents.length,
     };
@@ -103,12 +111,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "findBounds": () => (/* binding */ findBounds),
 /* harmony export */   "findCenter": () => (/* binding */ findCenter),
+/* harmony export */   "geoJsonToPoint": () => (/* binding */ geoJsonToPoint),
+/* harmony export */   "pointsToGeoJsonFeature": () => (/* binding */ pointsToGeoJsonFeature),
 /* harmony export */   "toGeoJson": () => (/* binding */ toGeoJson),
 /* harmony export */   "toGeoJsonFeature": () => (/* binding */ toGeoJsonFeature),
 /* harmony export */   "toGeoJsonLineString": () => (/* binding */ toGeoJsonLineString)
 /* harmony export */ });
 function toGeoJson(point) {
     return [point.lon, point.lat];
+}
+function pointsToGeoJsonFeature(points) {
+    return {
+        type: 'geojson',
+        data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: points.map(toGeoJson),
+            },
+        },
+    };
+}
+function geoJsonToPoint(pt) {
+    const { coordinates } = pt.geometry;
+    return { lon: coordinates[0], lat: coordinates[1] };
 }
 function toGeoJsonFeature(point) {
     return {

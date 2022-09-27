@@ -1,6 +1,19 @@
 /// <reference types="mapbox-gl" />
+import { Feature, Point } from '@turf/turf';
 import { LatLon } from './types';
 export declare function toGeoJson(point: LatLon): [number, number];
+export declare function pointsToGeoJsonFeature(points: LatLon[]): {
+    type: "geojson";
+    data: {
+        type: "Feature";
+        properties: {};
+        geometry: {
+            type: "LineString";
+            coordinates: [number, number][];
+        };
+    };
+};
+export declare function geoJsonToPoint(pt: Feature<Point>): LatLon;
 export declare function toGeoJsonFeature(point: LatLon): {
     type: "Feature";
     geometry: {

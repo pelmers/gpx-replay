@@ -23,7 +23,7 @@ class App extends React.Component<{}, State> {
             const [mapComponent, gpxContents, gpxParse] = await Promise.all([
                 import('./components/MapComponent'),
                 file.text(),
-                import('./gpxParsing')
+                import('./gpxParsing'),
             ]);
             // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
             this.setState({

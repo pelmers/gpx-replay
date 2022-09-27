@@ -1,8 +1,27 @@
-import { MAPBOX_API_KEY } from './mapboxApiKey';
+import { Feature, Point } from '@turf/turf';
 import { LatLon } from './types';
 
 export function toGeoJson(point: LatLon): [number, number] {
     return [point.lon, point.lat];
+}
+
+export function pointsToGeoJsonFeature(points: LatLon[]) {
+    return {
+        type: 'geojson' as const,
+        data: {
+            type: 'Feature' as const,
+            properties: {},
+            geometry: {
+                type: 'LineString' as const,
+                coordinates: points.map(toGeoJson),
+            },
+        },
+    };
+}
+
+export function geoJsonToPoint(pt: Feature<Point>): LatLon {
+    const { coordinates } = pt.geometry;
+    return { lon: coordinates[0], lat: coordinates[1] };
 }
 
 export function toGeoJsonFeature(point: LatLon) {
