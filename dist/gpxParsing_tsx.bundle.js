@@ -82,8 +82,6 @@ function parseGpxFile(gpxContents, applySmoothing = true) {
     const originalPoints = gpx.tracks[0].points;
     // TODO: make this points smoothing an option at import time
     let points = applySmoothing ? smoothPoints(originalPoints, 0.2) : originalPoints;
-    // TODO: test hypothesis: too many points = slow perf
-    points = points.slice(0, 1000);
     const distance = {
         total: points
             .slice(1)

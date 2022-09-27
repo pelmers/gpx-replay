@@ -48,7 +48,7 @@ type State = {
     useFollowCam: boolean;
     useFollowTrack: boolean;
     mapStyle: string;
-    // pointsPerFrame is a fixed value that means the number of points each frame
+    // pointsPerSecond is a fixed value that means the number of points each frame
     // should advance so the entire route takes 1 minute to finish. Can be a fractional.
     pointsPerSecond: number;
     // are we currently playing?
@@ -108,16 +108,17 @@ export default class MapComponent extends React.Component<Props, State> {
             this.animationHandle = requestAnimationFrame(this.animationLoop);
             this.lastAnimationTime = null;
             return;
+        } else if (this.lastAnimationTime == null) {
+            this.animationHandle = requestAnimationFrame(this.animationLoop);
+            this.lastAnimationTime = t;
+            return;
         }
-        // cap at 60 fps
-        const minAnimationTime = 16;
-        if (
-            this.lastAnimationTime != null &&
-            t - this.lastAnimationTime > minAnimationTime
-        ) {
+        // cap at 120 fps
+        const minAnimationTime = 1000 / 40;
+        if (t - this.lastAnimationTime > minAnimationTime) {
             this.animationBody(t - this.lastAnimationTime);
+            this.lastAnimationTime = t;
         }
-        this.lastAnimationTime = t;
         this.animationHandle = requestAnimationFrame(this.animationLoop);
     };
 
@@ -177,7 +178,7 @@ export default class MapComponent extends React.Component<Props, State> {
 
         if (this.state.useFollowCam) {
             const rot = bearingDiff(this.map.getBearing(), bearing);
-            // Cap the camera rotation rate at 90 degrees/second to prevent dizziness
+            // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
             const changeCap = 30 * timeDeltaS;
@@ -189,7 +190,7 @@ export default class MapComponent extends React.Component<Props, State> {
                 // @ts-ignore bug in typings
                 center,
                 bearing: fixedBearing,
-                duration: 0.9 * timeDeltaS * 1000,
+                duration: timeDeltaS * 1000,
                 // Linear move speed
                 easing: (x) => x,
             });

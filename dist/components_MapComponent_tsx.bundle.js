@@ -83,13 +83,18 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 this.lastAnimationTime = null;
                 return;
             }
-            // cap at 60 fps
-            const minAnimationTime = 16;
-            if (this.lastAnimationTime != null &&
-                t - this.lastAnimationTime > minAnimationTime) {
-                this.animationBody(t - this.lastAnimationTime);
+            else if (this.lastAnimationTime == null) {
+                this.animationHandle = requestAnimationFrame(this.animationLoop);
+                this.lastAnimationTime = t;
+                return;
             }
-            this.lastAnimationTime = t;
+            // cap at 120 fps
+            const minAnimationTime = 1000 / 40;
+            if (t - this.lastAnimationTime > minAnimationTime) {
+                console.log('enter animation body');
+                this.animationBody(t - this.lastAnimationTime);
+                this.lastAnimationTime = t;
+            }
             this.animationHandle = requestAnimationFrame(this.animationLoop);
         };
         this.handleProgressClick = (evt) => {
@@ -161,7 +166,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         }
         if (this.state.useFollowCam) {
             const rot = bearingDiff(this.map.getBearing(), bearing);
-            // Cap the camera rotation rate at 90 degrees/second to prevent dizziness
+            // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
             const changeCap = 30 * timeDeltaS;
@@ -171,7 +176,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 // @ts-ignore bug in typings
                 center,
                 bearing: fixedBearing,
-                duration: 0.9 * timeDeltaS * 1000,
+                duration: timeDeltaS * 1000,
                 // Linear move speed
                 easing: (x) => x,
             });

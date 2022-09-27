@@ -13,6 +13,8 @@ type State = {
     mapComponent?: typeof React.Component;
 };
 
+// TODO: globally bind space to play/pause
+
 class App extends React.Component<{}, State> {
     state: State = {};
 
