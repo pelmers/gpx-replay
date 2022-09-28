@@ -75,11 +75,21 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             }
             this.animationHandle = requestAnimationFrame(this.animationLoop);
         };
-        this.windowSpaceBind = (e) => {
+        this.windowKeyBinds = (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
                 e.stopPropagation();
                 this.setState({ isPlaying: !this.state.isPlaying });
+            }
+            if (e.code === 'KeyF') {
+                e.preventDefault();
+                e.stopPropagation();
+                if (document.fullscreenElement == null) {
+                    this.mapDivRef.current.requestFullscreen();
+                }
+                else {
+                    document.exitFullscreen();
+                }
             }
         };
         this.handleProgressClick = (evt) => {
@@ -191,16 +201,15 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         if (this.animationHandle != null) {
             cancelAnimationFrame(this.animationHandle);
         }
-        if (this.props.bindSpace) {
-            window.removeEventListener('keydown', this.windowSpaceBind);
+        if (this.props.bindKeys) {
+            window.removeEventListener('keydown', this.windowKeyBinds);
         }
     }
     componentDidMount() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.createMapFromState(this.state);
-            if (this.props.bindSpace) {
-                // Bind window space to play/pause
-                window.addEventListener('keydown', this.windowSpaceBind);
+            if (this.props.bindKeys) {
+                window.addEventListener('keydown', this.windowKeyBinds, true);
             }
         });
     }
@@ -323,6 +332,9 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 " (",
                 mb.toFixed(2),
                 " MB)"),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("b", null, "Tip:"),
+                " use space to play/pause, F to full screen"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "map-container-container" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
@@ -345,7 +357,12 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "map-style" }, "Map Style"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { name: "map style", onChange: (evt) => {
-                        this.setState({ mapStyle: evt.target.value });
+                        // Also set isPlaying to false because changing the style reloads the map
+                        // while the map is loading, the point and the track are not yet set
+                        this.setState({
+                            mapStyle: evt.target.value,
+                            isPlaying: false,
+                        });
                     }, defaultValue: this.state.mapStyle },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/outdoors-v11" }, "Outdoors"),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/streets-v11" }, "Streets"),

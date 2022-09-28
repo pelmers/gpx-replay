@@ -10,7 +10,7 @@ type State = {
     gpxInfo?: GpxInfo;
     gpxError?: string;
     isLoadingFile?: boolean;
-    mapComponent?: typeof React.Component;
+    mapComponent?: typeof import('./components/MapComponent').default;
 };
 
 // TODO: globally bind space to play/pause
@@ -56,7 +56,7 @@ class App extends React.Component<{}, State> {
             return (
                 <this.state.mapComponent
                     gpxInfo={this.state.gpxInfo}
-                    bindSpace={true}
+                    bindKeys={true}
                 />
             );
         } else {

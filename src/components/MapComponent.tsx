@@ -20,7 +20,7 @@ import RangeSliderComponent from './RangeSliderComponent';
 
 type Props = {
     gpxInfo: GpxInfo;
-    bindSpace: boolean;
+    bindKeys: boolean;
 };
 
 type State = {
@@ -198,28 +198,37 @@ export default class MapComponent extends React.Component<Props, State> {
         }
     }
 
-    windowSpaceBind = (e: KeyboardEvent) => {
+    windowKeyBinds = (e: KeyboardEvent) => {
         if (e.code === 'Space') {
             e.preventDefault();
             e.stopPropagation();
             this.setState({ isPlaying: !this.state.isPlaying });
         }
+        if (e.code === 'KeyF') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (document.fullscreenElement == null) {
+                this.mapDivRef.current!.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
     };
 
     componentWillUnmount(): void {
         if (this.animationHandle != null) {
             cancelAnimationFrame(this.animationHandle);
         }
-        if (this.props.bindSpace) {
-            window.removeEventListener('keydown', this.windowSpaceBind);
+        if (this.props.bindKeys) {
+            window.removeEventListener('keydown', this.windowKeyBinds);
         }
     }
 
     async componentDidMount() {
         await this.createMapFromState(this.state);
-        if (this.props.bindSpace) {
-            // Bind window space to play/pause
-            window.addEventListener('keydown', this.windowSpaceBind);
+        if (this.props.bindKeys) {
+            window.addEventListener('keydown', this.windowKeyBinds, true);
         }
     }
 
@@ -359,6 +368,9 @@ export default class MapComponent extends React.Component<Props, State> {
                 <div className="center gpx-info">
                     Selected: <b>{this.props.gpxInfo.name}</b> ({mb.toFixed(2)} MB)
                 </div>
+                <div className="center">
+                    <b>Tip:</b> use space to play/pause, F to full screen
+                </div>
                 <div className="map-container-container">
                     <div id="map-container" ref={this.mapDivRef} />
                 </div>
@@ -440,7 +452,12 @@ export default class MapComponent extends React.Component<Props, State> {
                     <select
                         name="map style"
                         onChange={(evt) => {
-                            this.setState({ mapStyle: evt.target.value });
+                            // Also set isPlaying to false because changing the style reloads the map
+                            // while the map is loading, the point and the track are not yet set
+                            this.setState({
+                                mapStyle: evt.target.value,
+                                isPlaying: false,
+                            });
                         }}
                         defaultValue={this.state.mapStyle}
                     >

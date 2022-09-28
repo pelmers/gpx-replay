@@ -33807,7 +33807,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_LoadGpxComponent__WEBPACK_IMPORTED_MODULE_3__["default"], { onGpxLoad: this.onFileAdded })));
         }
         else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
-            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(this.state.mapComponent, { gpxInfo: this.state.gpxInfo, bindSpace: true }));
+            return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(this.state.mapComponent, { gpxInfo: this.state.gpxInfo, bindKeys: true }));
         }
         else {
             return react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_LoadGpxComponent__WEBPACK_IMPORTED_MODULE_3__["default"], { onGpxLoad: this.onFileAdded });
