@@ -13,12 +13,15 @@ type Props = {
 
 export default class RangeSliderComponent extends React.Component<Props, {}> {
     render() {
+        // If the step is 0.1, then we show one space after the decimal
+        // Otherwise we show two (in future could extend this arbitrarily)
+        const fixedValue = Number.isInteger(this.props.step * 10) ? 1 : 2;
         return (
             <>
                 <label>{this.props.label}</label>
                 <div style={{ display: 'inline' }}>
                     <label style={{ marginRight: '25px' }}>
-                        {this.props.value.toFixed(1)}
+                        {this.props.value.toFixed(fixedValue)}
                     </label>
                     <input
                         type="range"

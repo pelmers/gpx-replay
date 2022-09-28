@@ -96,7 +96,7 @@ export default class MapComponent extends React.Component<Props, State> {
             this.lastAnimationTime = t;
             return;
         }
-        // cap at 120 fps
+        // cap at 40 fps
         const minAnimationTime = 1000 / 40;
         if (t - this.lastAnimationTime > minAnimationTime) {
             this.animationBody(t - this.lastAnimationTime);
@@ -213,7 +213,6 @@ export default class MapComponent extends React.Component<Props, State> {
                 document.exitFullscreen();
             }
         }
-
     };
 
     componentWillUnmount(): void {

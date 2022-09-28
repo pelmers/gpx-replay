@@ -33410,14 +33410,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
+
 
 class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor() {
         super(...arguments);
         this.gpxInputRef = react__WEBPACK_IMPORTED_MODULE_0___default().createRef();
+        this.state = {
+            smoothingFactor: 0.8,
+        };
     }
     render() {
-        const handleFiles = (files) => this.props.onGpxLoad(files[0]);
+        const handleFiles = (files) => this.props.onGpxLoad(files[0], this.state.smoothingFactor);
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h4", { id: "gpx-step-header" }, "Load GPX file"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "gpx-step-contents" },
@@ -33436,7 +33441,9 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
                     }, onDragOver: (e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                    } }, "Or drag and drop here"))));
+                    } }, "Or drag and drop here")),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "control-group" },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "Smoothing Factor", min: 0.0, max: 40, step: 0.1, value: this.state.smoothingFactor, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
     }
 }
 
@@ -33461,6 +33468,36 @@ class LoadingComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "loading-spinner" }),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "loading-spinner-progress-text" }, this.props.message)));
+    }
+}
+
+
+/***/ }),
+
+/***/ "./components/RangeSliderComponent.tsx":
+/*!*********************************************!*\
+  !*** ./components/RangeSliderComponent.tsx ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ RangeSliderComponent)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+// React component that renders a range slider with a label and callback on change
+
+class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
+    render() {
+        // If the step is 0.1, then we show one space after the decimal
+        // Otherwise we show two (in future could extend this arbitrarily)
+        const fixedValue = Number.isInteger(this.props.step * 10) ? 1 : 2;
+        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(fixedValue)),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) }))));
     }
 }
 
@@ -33772,7 +33809,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor() {
         super(...arguments);
         this.state = {};
-        this.onFileAdded = (file) => __awaiter(this, void 0, void 0, function* () {
+        this.onFileAdded = (file, smoothingFactor) => __awaiter(this, void 0, void 0, function* () {
             this.setState({ isLoadingFile: true });
             try {
                 // Import the map component async so the bundle can be split
@@ -33785,7 +33822,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                 this.setState({
                     isLoadingFile: false,
                     gpxError: undefined,
-                    gpxInfo: gpxParse.default(gpxContents),
+                    gpxInfo: gpxParse.default(gpxContents, smoothingFactor),
                     mapComponent: mapComponent.default,
                 });
             }

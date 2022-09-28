@@ -18,7 +18,7 @@ type State = {
 class App extends React.Component<{}, State> {
     state: State = {};
 
-    onFileAdded = async (file: File) => {
+    onFileAdded = async (file: File, smoothingFactor: number) => {
         this.setState({ isLoadingFile: true });
         try {
             // Import the map component async so the bundle can be split
@@ -31,7 +31,7 @@ class App extends React.Component<{}, State> {
             this.setState({
                 isLoadingFile: false,
                 gpxError: undefined,
-                gpxInfo: gpxParse.default(gpxContents),
+                gpxInfo: gpxParse.default(gpxContents, smoothingFactor),
                 mapComponent: mapComponent.default,
             });
         } catch (e) {
@@ -54,10 +54,7 @@ class App extends React.Component<{}, State> {
             );
         } else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
             return (
-                <this.state.mapComponent
-                    gpxInfo={this.state.gpxInfo}
-                    bindKeys={true}
-                />
+                <this.state.mapComponent gpxInfo={this.state.gpxInfo} bindKeys={true} />
             );
         } else {
             return <LoadGpxComponent onGpxLoad={this.onFileAdded} />;

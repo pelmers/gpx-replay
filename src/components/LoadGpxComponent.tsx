@@ -1,14 +1,24 @@
 import React from 'react';
+import RangeSliderComponent from './RangeSliderComponent';
 
 type Props = {
-    onGpxLoad: (gpxFile: File) => unknown;
+    onGpxLoad: (gpxFile: File, smoothingFactor: number) => unknown;
 };
 
-export default class LoadGpxComponent extends React.Component<Props, {}> {
+type State = {
+    smoothingFactor: number;
+};
+
+export default class LoadGpxComponent extends React.Component<Props, State> {
     gpxInputRef = React.createRef<HTMLInputElement>();
 
+    state = {
+        smoothingFactor: 0.8,
+    };
+
     render() {
-        const handleFiles = (files: FileList) => this.props.onGpxLoad(files[0]);
+        const handleFiles = (files: FileList) =>
+            this.props.onGpxLoad(files[0], this.state.smoothingFactor);
         return (
             <div className="center">
                 <h4 id="gpx-step-header">Load GPX file</h4>
@@ -52,6 +62,16 @@ export default class LoadGpxComponent extends React.Component<Props, {}> {
                     >
                         Or drag and drop here
                     </div>
+                </div>
+                <div className="control-group">
+                    <RangeSliderComponent
+                        label="Smoothing Factor"
+                        min={0.0}
+                        max={40}
+                        step={0.1}
+                        value={this.state.smoothingFactor}
+                        onChange={(value) => this.setState({ smoothingFactor: value })}
+                    />
                 </div>
             </div>
         );

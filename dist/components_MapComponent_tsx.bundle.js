@@ -67,7 +67,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 this.lastAnimationTime = t;
                 return;
             }
-            // cap at 120 fps
+            // cap at 40 fps
             const minAnimationTime = 1000 / 40;
             if (t - this.lastAnimationTime > minAnimationTime) {
                 this.animationBody(t - this.lastAnimationTime);
@@ -390,33 +390,6 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                         this.setState({ gpxTrackColor: ev.target.value });
                     } }),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Line Thickness', min: 0.0, max: 30, step: 0.5, value: this.state.gpxTrackWidth, onChange: (value) => this.setState({ gpxTrackWidth: value }) }))));
-    }
-}
-
-
-/***/ }),
-
-/***/ "./components/RangeSliderComponent.tsx":
-/*!*********************************************!*\
-  !*** ./components/RangeSliderComponent.tsx ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ RangeSliderComponent)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-// React component that renders a range slider with a label and callback on change
-
-class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
-    render() {
-        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(1)),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) }))));
     }
 }
 

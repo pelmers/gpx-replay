@@ -17,13 +17,16 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
         );
     }
     pairDistances.sort();
+    // Compute distance cutoff by multiplying the median distance by the given percentile
+    // of course it's not really a "percentile" anymore, but good enough
     const distanceCutoff =
-        pairDistances[Math.floor(percentileCutoff * pairDistances.length)];
+        percentileCutoff * pairDistances[Math.floor(pairDistances.length / 2)];
+    console.log('Distance cutoff is', distanceCutoff, 'km');
 
-    // For smoothness, massage the gpx route by merging points in the bottom 20% of speed
+    // For smoothness, massage the gpx route by merging points below distance cutoff
     // the assumption here is that points are evenly spaced in time (maybe not always true?)
-    const smoothedPoints = [];
-    let idx = 0;
+    const smoothedPoints = [originalPoints[0]];
+    let idx = 1;
     while (idx < originalPoints.length - 1) {
         let segmentStart = originalPoints[idx];
         let summedDistance = 0;
@@ -39,19 +42,23 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
     }
     // We remember to add on the last point
     smoothedPoints.push(originalPoints[originalPoints.length - 1]);
+    console.log(`After smoothing: ${originalPoints.length} -> ${smoothedPoints.length}`);
     return smoothedPoints;
 }
 
 export default function parseGpxFile(
     gpxContents: string,
-    applySmoothing: boolean = true
+    smoothingFactor: number = 0.3
 ): GpxInfo {
     const gpx = new GpxParser();
     gpx.parse(gpxContents);
 
     const originalPoints = gpx.tracks[0].points;
     // TODO: make this points smoothing an option at import time
-    let points = applySmoothing ? smoothPoints(originalPoints, 0.3) : originalPoints;
+    let points =
+        smoothingFactor != null
+            ? smoothPoints(originalPoints, smoothingFactor)
+            : originalPoints;
 
     const distance = {
         total: points

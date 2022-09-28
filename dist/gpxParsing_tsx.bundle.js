@@ -56,11 +56,14 @@ function smoothPoints(originalPoints, percentileCutoff) {
         pairDistances.push(_turf_turf__WEBPACK_IMPORTED_MODULE_1__.distance((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i]), (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(originalPoints[i + 1])));
     }
     pairDistances.sort();
-    const distanceCutoff = pairDistances[Math.floor(percentileCutoff * pairDistances.length)];
-    // For smoothness, massage the gpx route by merging points in the bottom 20% of speed
+    // Compute distance cutoff by multiplying the median distance by the given percentile
+    // of course it's not really a "percentile" anymore, but good enough
+    const distanceCutoff = percentileCutoff * pairDistances[Math.floor(pairDistances.length / 2)];
+    console.log('Distance cutoff is', distanceCutoff, 'km');
+    // For smoothness, massage the gpx route by merging points below distance cutoff
     // the assumption here is that points are evenly spaced in time (maybe not always true?)
-    const smoothedPoints = [];
-    let idx = 0;
+    const smoothedPoints = [originalPoints[0]];
+    let idx = 1;
     while (idx < originalPoints.length - 1) {
         let segmentStart = originalPoints[idx];
         let summedDistance = 0;
@@ -73,14 +76,17 @@ function smoothPoints(originalPoints, percentileCutoff) {
     }
     // We remember to add on the last point
     smoothedPoints.push(originalPoints[originalPoints.length - 1]);
+    console.log(`After smoothing: ${originalPoints.length} -> ${smoothedPoints.length}`);
     return smoothedPoints;
 }
-function parseGpxFile(gpxContents, applySmoothing = true) {
+function parseGpxFile(gpxContents, smoothingFactor = 0.3) {
     const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_0___default())();
     gpx.parse(gpxContents);
     const originalPoints = gpx.tracks[0].points;
     // TODO: make this points smoothing an option at import time
-    let points = applySmoothing ? smoothPoints(originalPoints, 0.3) : originalPoints;
+    let points = smoothingFactor != null
+        ? smoothPoints(originalPoints, smoothingFactor)
+        : originalPoints;
     const distance = {
         total: points
             .slice(1)
