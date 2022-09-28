@@ -33398,6 +33398,42 @@ class ErrorComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compo
 
 /***/ }),
 
+/***/ "./components/LabelInputWithHelp.tsx":
+/*!*******************************************!*\
+  !*** ./components/LabelInputWithHelp.tsx ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ LabelInputWithHelp)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/**
+ * Component that wraps a label and an input field, so that when you click the label
+ * a help span is shown.
+ */
+
+class LabelInputWithHelp extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
+    constructor() {
+        super(...arguments);
+        this.state = {
+            expanded: false,
+        };
+    }
+    render() {
+        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", { className: "labelInputWithHelp", onClick: () => this.setState({ expanded: !this.state.expanded }) }, this.props.label),
+            this.props.input,
+            this.state.expanded && react__WEBPACK_IMPORTED_MODULE_0___default().createElement("span", null),
+            this.state.expanded && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("blockquote", { className: "helpText" }, this.props.helpText))));
+    }
+}
+
+
+/***/ }),
+
 /***/ "./components/LoadGpxComponent.tsx":
 /*!*****************************************!*\
   !*** ./components/LoadGpxComponent.tsx ***!
@@ -33422,6 +33458,12 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
         };
     }
     render() {
+        const gpsSmoothingHelpEssay = `Smoothing GPS data means removing points that are close together.
+            Higher smoothing factor: remove more points. At 0, no points are removed.
+            Removing points helps deal with noise in the GPS data.
+            The exact number of points is not known in advance;
+            it's calculated based on multiplying the smoothing factor with the median distance in the data.
+            Consecutive points closer than this distance are merged until they exceed it.`;
         const handleFiles = (files) => this.props.onGpxLoad(files[0], this.state.smoothingFactor);
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h4", { id: "gpx-step-header" }, "Load GPX file"),
@@ -33443,7 +33485,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
                         e.stopPropagation();
                     } }, "Or drag and drop here")),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "Smoothing Factor", min: 0.0, max: 40, step: 0.1, value: this.state.smoothingFactor, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "GPS Smoothing", min: 0.0, max: 40, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
     }
 }
 
@@ -33486,18 +33528,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LabelInputWithHelp */ "./components/LabelInputWithHelp.tsx");
 // React component that renders a range slider with a label and callback on change
+
 
 class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     render() {
         // If the step is 0.1, then we show one space after the decimal
         // Otherwise we show two (in future could extend this arbitrarily)
         const fixedValue = Number.isInteger(this.props.step * 10) ? 1 : 2;
-        return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(fixedValue)),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) }))));
+        const label = react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label);
+        const input = (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(fixedValue)),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) })));
+        return this.props.helpText ? (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__["default"], { label: label, input: input, helpText: this.props.helpText })) : (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
+            label,
+            input));
     }
 }
 
@@ -33834,6 +33880,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
             }
         });
     }
+    // TODO: figure way to render help for all the various options i have
     render() {
         if (this.state.isLoadingFile) {
             return react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_LoadingComponent__WEBPACK_IMPORTED_MODULE_4__["default"], { message: 'Processing selected file' });

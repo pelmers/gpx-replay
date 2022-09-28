@@ -90,3 +90,15 @@
     margin: auto;
     max-width: 38em;
 }
+
+.labelInputWithHelp {
+    cursor: pointer;
+}
+
+.labelInputWithHelp:hover {
+    text-decoration: underline #3b22ea;
+}
+
+.labelInputWithHelp::after {
+    content: ' [?]';
+}

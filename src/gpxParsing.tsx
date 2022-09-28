@@ -42,7 +42,9 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
     }
     // We remember to add on the last point
     smoothedPoints.push(originalPoints[originalPoints.length - 1]);
-    console.log(`After smoothing: ${originalPoints.length} -> ${smoothedPoints.length}`);
+    console.log(
+        `After smoothing: ${originalPoints.length} -> ${smoothedPoints.length}`
+    );
     return smoothedPoints;
 }
 
