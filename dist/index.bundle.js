@@ -33880,7 +33880,6 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
             }
         });
     }
-    // TODO: figure way to render help for all the various options i have
     render() {
         if (this.state.isLoadingFile) {
             return react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components_LoadingComponent__WEBPACK_IMPORTED_MODULE_4__["default"], { message: 'Processing selected file' });

@@ -42,8 +42,6 @@ class App extends React.Component<{}, State> {
         }
     };
 
-    // TODO: figure way to render help for all the various options i have
-
     render() {
         if (this.state.isLoadingFile) {
             return <LoadingComponent message={'Processing selected file'} />;
