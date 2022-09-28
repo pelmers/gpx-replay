@@ -6,7 +6,7 @@ declare type Props = {
     value: number;
     step: number;
     onChange: (value: number) => unknown;
-    helpText?: string;
+    helpText?: string | JSX.Element;
 };
 export default class RangeSliderComponent extends React.Component<Props, {}> {
     render(): JSX.Element;

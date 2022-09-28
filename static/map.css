@@ -116,12 +116,3 @@ input[type='range'] {
     grid-gap: 0.3rem;
     grid-template-columns: 180px auto;
 }
-
-.first-control-group {
-    border: 1px solid #2c8898;
-    border-radius: 5px;
-    padding: 10px;
-    display: grid;
-    grid-gap: 0.3rem;
-    grid-template-columns: 180px auto 180px auto;
-}

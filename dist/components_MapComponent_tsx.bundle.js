@@ -19,6 +19,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(mapbox_gl__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _turf_turf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @turf/turf */ "../node_modules/@turf/turf/dist/es/index.js");
 /* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
+/* harmony import */ var _LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./LabelInputWithHelp */ "./components/LabelInputWithHelp.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28,6 +29,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -344,16 +346,16 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { className: "fullscreen-button", onClick: () => {
                             this.mapDivRef.current.requestFullscreen();
                         } }, "Fullscreen"))),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center first-control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({ useFollowCam: !this.state.useFollowCam }) }),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowTrack"),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowTrack, onChange: () => this.setState({
-                        useFollowTrack: !this.state.useFollowTrack,
-                    }) })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
-                this.state.useFollowCam && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) })),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Playback Rate', min: 0.2, max: 20, step: 0.2, value: this.state.playbackRate, onChange: (value) => this.setState({ playbackRate: value }) })),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({
+                            useFollowCam: !this.state.useFollowCam,
+                        }), style: { maxWidth: '32px' } }), helpText: 'When checked, camera follows point during playback' }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowTrack"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowTrack, onChange: () => this.setState({
+                            useFollowTrack: !this.state.useFollowTrack,
+                        }), style: { maxWidth: '32px' } }), helpText: 'When checked, GPX track follows point during playback' })),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
+                this.state.useFollowCam && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, helpText: "In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan.", value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) })),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Playback Rate', min: 0.2, max: 20, step: 0.2, value: this.state.playbackRate, helpText: "Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length).", onChange: (value) => this.setState({ playbackRate: value }) })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "map-style" }, "Map Style"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { name: "map style", onChange: (evt) => {
@@ -371,19 +373,19 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/satellite-v9" }, "Satellite"),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/satellite-streets-v11" }, "Satellite Streets"),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/navigation-day-v1" }, "Navigation Day"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/navigation-night-v1" }, "Navigation Night")),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "Point Icon"),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { defaultValue: this.state.pointIcon, onChange: (evt) => {
-                        this.setState({ pointIcon: evt.target.value });
-                    } },
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bicycle-15" }, "Bicycle"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rocket-15" }, "Rocket"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "swimming-15" }, "Swimmer"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bus-15" }, "Bus"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rail-15" }, "Train"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "pitch-15" }, "Runner"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "car-15" }, "Death Cage"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "circle-15" }, "Circle")),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/mapbox/navigation-night-v1" }, "Navigation Night"),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy" }, "Peter Custom Satellite")),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "Point Icon"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("select", { defaultValue: this.state.pointIcon, onChange: (evt) => {
+                            this.setState({ pointIcon: evt.target.value });
+                        } },
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bicycle-15" }, "Bicycle"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rocket-15" }, "Rocket"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "swimming-15" }, "Swimmer"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "bus-15" }, "Bus"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "rail-15" }, "Train"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "pitch-15" }, "Runner"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "car-15" }, "Death Cage"),
+                        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("option", { value: "circle-15" }, "Circle")), helpText: 'Icon to use for the point. Note: not all styles support every icon. If you have a specific request please file an issue. (Or better yet, submit a fix!)' }),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Point Icon Size', min: 0.0, max: 25, step: 0.5, value: this.state.pointIconSize, onChange: (value) => this.setState({ pointIconSize: value }) }),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { htmlFor: "line-color" }, "Line Color"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "color", name: "line-color", defaultValue: this.state.gpxTrackColor, onChange: (ev) => {

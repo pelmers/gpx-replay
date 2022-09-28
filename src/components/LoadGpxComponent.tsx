@@ -17,8 +17,7 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
     };
 
     render() {
-        const gpsSmoothingHelpEssay =
-            `Smoothing GPS data means removing points that are close together.
+        const gpsSmoothingHelpEssay = `Smoothing GPS data means removing points that are close together.
             Higher smoothing factor: remove more points. At 0, no points are removed.
             Removing points helps deal with noise in the GPS data.
             The exact number of points is not known in advance;

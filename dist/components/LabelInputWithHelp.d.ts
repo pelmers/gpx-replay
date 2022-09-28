@@ -6,7 +6,7 @@ import React from 'react';
 declare type Props = {
     label: JSX.Element;
     input: JSX.Element;
-    helpText: string;
+    helpText: string | JSX.Element;
 };
 declare type State = {
     expanded: boolean;

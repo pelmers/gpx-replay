@@ -96,9 +96,15 @@
 }
 
 .labelInputWithHelp:hover {
-    text-decoration: underline #3b22ea;
+    text-decoration: underline 3px #3b22ea;
 }
 
 .labelInputWithHelp::after {
     content: ' [?]';
+    font-weight: bolder;
+}
+
+.helpText {
+    padding: 0 0 0 2ch;
+    margin: 0;
 }

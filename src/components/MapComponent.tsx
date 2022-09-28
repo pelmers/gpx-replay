@@ -17,6 +17,7 @@ import {
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import RangeSliderComponent from './RangeSliderComponent';
+import LabelInputWithHelp from './LabelInputWithHelp';
 
 type Props = {
     gpxInfo: GpxInfo;
@@ -404,23 +405,39 @@ export default class MapComponent extends React.Component<Props, State> {
                         </button>
                     </div>
                 </div>
-                <div className="center first-control-group">
-                    <label>FollowCam</label>
-                    <input
-                        type="checkbox"
-                        defaultChecked={this.state.useFollowCam}
-                        onChange={() =>
-                            this.setState({ useFollowCam: !this.state.useFollowCam })
+                <div className="center control-group">
+                    <LabelInputWithHelp
+                        label={<label>FollowCam</label>}
+                        input={
+                            <input
+                                type="checkbox"
+                                defaultChecked={this.state.useFollowCam}
+                                onChange={() =>
+                                    this.setState({
+                                        useFollowCam: !this.state.useFollowCam,
+                                    })
+                                }
+                                style={{ maxWidth: '32px' }}
+                            />
                         }
+                        helpText={'When checked, camera follows point during playback'}
                     />
-                    <label>FollowTrack</label>
-                    <input
-                        type="checkbox"
-                        defaultChecked={this.state.useFollowTrack}
-                        onChange={() =>
-                            this.setState({
-                                useFollowTrack: !this.state.useFollowTrack,
-                            })
+                    <LabelInputWithHelp
+                        label={<label>FollowTrack</label>}
+                        input={
+                            <input
+                                type="checkbox"
+                                defaultChecked={this.state.useFollowTrack}
+                                onChange={() =>
+                                    this.setState({
+                                        useFollowTrack: !this.state.useFollowTrack,
+                                    })
+                                }
+                                style={{ maxWidth: '32px' }}
+                            />
+                        }
+                        helpText={
+                            'When checked, GPX track follows point during playback'
                         }
                     />
                 </div>
@@ -431,6 +448,7 @@ export default class MapComponent extends React.Component<Props, State> {
                             min={0}
                             max={180}
                             step={1}
+                            helpText="In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan."
                             value={this.state.followSensitivity}
                             onChange={(v) => this.setState({ followSensitivity: v })}
                         />
@@ -442,6 +460,7 @@ export default class MapComponent extends React.Component<Props, State> {
                         max={20}
                         step={0.2}
                         value={this.state.playbackRate}
+                        helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
                         onChange={(value) => this.setState({ playbackRate: value })}
                     />
                 </div>
@@ -480,25 +499,35 @@ export default class MapComponent extends React.Component<Props, State> {
                         <option value="mapbox://styles/mapbox/navigation-night-v1">
                             Navigation Night
                         </option>
+                        <option value="mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy">
+                            Peter Custom Satellite
+                        </option>
                     </select>
 
                     {/* List available at https://github.com/mapbox/mapbox-gl-styles#standard-icons  */}
-                    <label>Point Icon</label>
-                    <select
-                        defaultValue={this.state.pointIcon}
-                        onChange={(evt) => {
-                            this.setState({ pointIcon: evt.target.value });
-                        }}
-                    >
-                        <option value="bicycle-15">Bicycle</option>
-                        <option value="rocket-15">Rocket</option>
-                        <option value="swimming-15">Swimmer</option>
-                        <option value="bus-15">Bus</option>
-                        <option value="rail-15">Train</option>
-                        <option value="pitch-15">Runner</option>
-                        <option value="car-15">Death Cage</option>
-                        <option value="circle-15">Circle</option>
-                    </select>
+                    <LabelInputWithHelp
+                        label={<label>Point Icon</label>}
+                        input={
+                            <select
+                                defaultValue={this.state.pointIcon}
+                                onChange={(evt) => {
+                                    this.setState({ pointIcon: evt.target.value });
+                                }}
+                            >
+                                <option value="bicycle-15">Bicycle</option>
+                                <option value="rocket-15">Rocket</option>
+                                <option value="swimming-15">Swimmer</option>
+                                <option value="bus-15">Bus</option>
+                                <option value="rail-15">Train</option>
+                                <option value="pitch-15">Runner</option>
+                                <option value="car-15">Death Cage</option>
+                                <option value="circle-15">Circle</option>
+                            </select>
+                        }
+                        helpText={
+                            'Icon to use for the point. Note: not all styles support every icon. If you have a specific request please file an issue. (Or better yet, submit a fix!)'
+                        }
+                    />
 
                     <RangeSliderComponent
                         label={'Point Icon Size'}

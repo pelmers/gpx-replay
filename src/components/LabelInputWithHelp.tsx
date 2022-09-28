@@ -8,7 +8,7 @@ import React from 'react';
 type Props = {
     label: JSX.Element;
     input: JSX.Element;
-    helpText: string;
+    helpText: string | JSX.Element;
 };
 
 type State = {
