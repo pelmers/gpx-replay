@@ -114,5 +114,5 @@ input[type='range'] {
     padding: 10px;
     display: grid;
     grid-gap: 0.3rem;
-    grid-template-columns: 180px auto;
+    grid-template-columns: 190px auto;
 }
