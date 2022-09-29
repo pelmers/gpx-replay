@@ -23,6 +23,8 @@ to my [Eurovelo 6 video guide](https://www.youtube.com/watch?v=g8bpJm3dWoo).
 -   Upload GPX file (track or route) and see it on a map
 -   Replay the GPX file, allowing many custom settings
 
+![Map Examples](res/gpx_examples.jpg)
+
 ### Usage
 
 ```

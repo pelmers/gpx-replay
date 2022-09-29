@@ -1,4 +1,5 @@
 node_modules
+**/.DS_STORE
 
 src/mapboxApiKey.ts
 dist/**/*.js.map
