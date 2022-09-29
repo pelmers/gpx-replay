@@ -13,8 +13,6 @@ type State = {
     mapComponent?: typeof import('./components/MapComponent').default;
 };
 
-// TODO: globally bind space to play/pause
-
 class App extends React.Component<{}, State> {
     state: State = {};
 
@@ -27,7 +25,6 @@ class App extends React.Component<{}, State> {
                 file.text(),
                 import('./gpxParsing'),
             ]);
-            // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
             this.setState({
                 isLoadingFile: false,
                 gpxError: undefined,

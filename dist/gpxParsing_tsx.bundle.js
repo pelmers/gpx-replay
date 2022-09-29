@@ -83,7 +83,6 @@ function parseGpxFile(gpxContents, smoothingFactor = 0.3) {
     const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_0___default())();
     gpx.parse(gpxContents);
     const originalPoints = gpx.tracks[0].points;
-    // TODO: make this points smoothing an option at import time
     let points = smoothingFactor != null
         ? smoothPoints(originalPoints, smoothingFactor)
         : originalPoints;

@@ -33850,7 +33850,6 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-// TODO: globally bind space to play/pause
 class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor() {
         super(...arguments);
@@ -33864,7 +33863,6 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                     file.text(),
                     Promise.all(/*! import() */[__webpack_require__.e("vendors-node_modules_turf_turf_dist_es_index_js"), __webpack_require__.e("gpxParsing_tsx")]).then(__webpack_require__.bind(__webpack_require__, /*! ./gpxParsing */ "./gpxParsing.tsx")),
                 ]);
-                // TODO: for smoothness, massage the gpx speed by merging points in the bottom 10% of speed
                 this.setState({
                     isLoadingFile: false,
                     gpxError: undefined,
