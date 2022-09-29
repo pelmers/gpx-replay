@@ -23,6 +23,8 @@ export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;
     progressRef: React.RefObject<HTMLProgressElement>;
     map: mapboxgl.Map;
+    mapControl: mapboxgl.NavigationControl;
+    fullscreenControl: mapboxgl.FullscreenControl;
     playhead: number;
     lastAnimationTime: number | null;
     animationHandle: number;

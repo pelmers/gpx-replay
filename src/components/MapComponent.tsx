@@ -47,6 +47,8 @@ export default class MapComponent extends React.Component<Props, State> {
     progressRef = React.createRef<HTMLProgressElement>();
 
     map: mapboxgl.Map;
+    mapControl = new mapboxgl.NavigationControl();
+    fullscreenControl = new mapboxgl.FullscreenControl();
     // where is the bike along the track? can be fractional, in the range [0, # points]
     // TODO: can i put this number in the state?
     playhead: number = 0;
@@ -214,6 +216,17 @@ export default class MapComponent extends React.Component<Props, State> {
                 document.exitFullscreen();
             }
         }
+        if (e.code === 'KeyH') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (this.map.hasControl(this.mapControl)) {
+                this.map.removeControl(this.mapControl);
+                this.map.removeControl(this.fullscreenControl);
+            } else {
+                this.map.addControl(this.mapControl);
+                this.map.addControl(this.fullscreenControl);
+            }
+        }
     };
 
     componentWillUnmount(): void {
@@ -257,6 +270,8 @@ export default class MapComponent extends React.Component<Props, State> {
                 accessToken: MAPBOX_API_KEY,
             });
             this.map.fitBounds(findBounds(gpsPoints));
+            this.map.addControl(this.mapControl);
+            this.map.addControl(this.fullscreenControl);
         } else {
             // If we have already loaded the map, just set the style. Otherwise it's billable
             this.map.setStyle(state.mapStyle);
@@ -369,7 +384,8 @@ export default class MapComponent extends React.Component<Props, State> {
                     Selected: <b>{this.props.gpxInfo.name}</b> ({mb.toFixed(2)} MB)
                 </div>
                 <div className="center">
-                    <b>Tip:</b> use space to play/pause, F to full screen
+                    <b>Tip:</b> use space to play/pause, F to full screen, H to hide
+                    controls
                 </div>
                 <div className="map-container-container">
                     <div id="map-container" ref={this.mapDivRef} />
@@ -395,14 +411,6 @@ export default class MapComponent extends React.Component<Props, State> {
                         >
                             Progress
                         </progress>
-                        <button
-                            className="fullscreen-button"
-                            onClick={() => {
-                                this.mapDivRef.current!.requestFullscreen();
-                            }}
-                        >
-                            Fullscreen
-                        </button>
                     </div>
                 </div>
                 <div className="center control-group">

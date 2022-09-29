@@ -41,6 +41,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         super(props);
         this.mapDivRef = react__WEBPACK_IMPORTED_MODULE_0___default().createRef();
         this.progressRef = react__WEBPACK_IMPORTED_MODULE_0___default().createRef();
+        this.mapControl = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().NavigationControl)();
+        this.fullscreenControl = new (mapbox_gl__WEBPACK_IMPORTED_MODULE_3___default().FullscreenControl)();
         // where is the bike along the track? can be fractional, in the range [0, # points]
         // TODO: can i put this number in the state?
         this.playhead = 0;
@@ -91,6 +93,18 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 }
                 else {
                     document.exitFullscreen();
+                }
+            }
+            if (e.code === 'KeyH') {
+                e.preventDefault();
+                e.stopPropagation();
+                if (this.map.hasControl(this.mapControl)) {
+                    this.map.removeControl(this.mapControl);
+                    this.map.removeControl(this.fullscreenControl);
+                }
+                else {
+                    this.map.addControl(this.mapControl);
+                    this.map.addControl(this.fullscreenControl);
                 }
             }
         };
@@ -231,6 +245,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     accessToken: _mapboxApiKey__WEBPACK_IMPORTED_MODULE_1__.MAPBOX_API_KEY,
                 });
                 this.map.fitBounds((0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.findBounds)(gpsPoints));
+                this.map.addControl(this.mapControl);
+                this.map.addControl(this.fullscreenControl);
             }
             else {
                 // If we have already loaded the map, just set the style. Otherwise it's billable
@@ -336,16 +352,13 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 " MB)"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("b", null, "Tip:"),
-                " use space to play/pause, F to full screen"),
+                " use space to play/pause, F to full screen, H to hide controls"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "map-container-container" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { className: "fullscreen-button", onClick: () => {
-                            this.mapDivRef.current.requestFullscreen();
-                        } }, "Fullscreen"))),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"))),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({
                             useFollowCam: !this.state.useFollowCam,

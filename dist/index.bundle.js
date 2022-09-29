@@ -33485,7 +33485,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
                         e.stopPropagation();
                     } }, "Or drag and drop here")),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "GPS Smoothing", min: 0.0, max: 40, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "GPS Smoothing", min: 0.0, max: 50, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
     }
 }
 

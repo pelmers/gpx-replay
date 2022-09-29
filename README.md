@@ -6,16 +6,16 @@
 
 ### Description
 
-GPX Replay takes your GPX file and replays it on a map.  The tool runs entirely
+GPX Replay takes your GPX file and replays it on a map. The tool runs entirely
 on the client browser.
 
-Repeat: **no data is sent to a server**.  The GPX file is loaded into the
+Repeat: **no data is sent to a server**. The GPX file is loaded into the
 browser and processed on your computer.
 
 Essentially it began as a subset of
 [streetwarp-web](https://github.com/pelmers/streetwarp-web) that skipped the
-video generation, then I added a bunch of things to it.  The map uses the
-[mapbox](https://www.mapbox.com) API.  I made this tool to add map animations
+video generation, then I added a bunch of things to it. The map uses the
+[mapbox](https://www.mapbox.com) API. I made this tool to add map animations
 to my [Eurovelo 6 video guide](https://www.youtube.com/watch?v=g8bpJm3dWoo).
 
 ### Features

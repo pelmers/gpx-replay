@@ -17,7 +17,7 @@
     align-items: center;
     display: grid;
     grid-gap: 1rem;
-    grid-template-columns: 50px auto 95px;
+    grid-template-columns: 50px auto;
     padding: 0.5rem;
 }
 
