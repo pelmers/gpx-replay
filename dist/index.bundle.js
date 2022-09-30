@@ -33539,7 +33539,7 @@ class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default()
         const fixedValue = Number.isInteger(this.props.step * 10) ? 1 : 2;
         const label = react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label);
         const input = (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '25px' } }, this.props.value.toFixed(fixedValue)),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '5px', width: '4ch', display: 'inline-block' } }, this.props.value.toFixed(fixedValue)),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) })));
         return this.props.helpText ? (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__["default"], { label: label, input: input, helpText: this.props.helpText })) : (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
             label,

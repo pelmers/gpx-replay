@@ -100,7 +100,7 @@
     display: inline;
 }
 input[type='range'] {
-    width: calc(100% - (100px));
+    width: calc(100% - (25px + 4ch + 0.25rem));
     height: 10px;
     border-radius: 5px;
     outline: none;
@@ -113,6 +113,12 @@ input[type='range'] {
     border-radius: 5px;
     padding: 10px;
     display: grid;
-    grid-gap: 0.3rem;
+    grid-gap: 0.25rem;
     grid-template-columns: 190px auto;
+}
+
+@media (max-width: 684px) {
+    .control-group {
+        grid-template-columns: 160px auto;
+    }
 }
