@@ -1,12 +1,15 @@
 import React from 'react';
+import CheckboxControlInputComponent from './CheckboxControlInputComponent';
+import LabelInputWithHelp from './LabelInputWithHelp';
 import RangeSliderComponent from './RangeSliderComponent';
 
 type Props = {
-    onGpxLoad: (gpxFile: File, smoothingFactor: number) => unknown;
+    onGpxLoad: (gpxFile: File, smoothingFactor: number, joinTracks: boolean) => unknown;
 };
 
 type State = {
     smoothingFactor: number;
+    joinTracks: boolean;
 };
 
 export default class LoadGpxComponent extends React.Component<Props, State> {
@@ -14,6 +17,7 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
 
     state = {
         smoothingFactor: 0.8,
+        joinTracks: false,
     };
 
     render() {
@@ -24,8 +28,16 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
             it's calculated based on multiplying the smoothing factor with the median distance in the data.
             Consecutive points closer than this distance are merged until they exceed it.`;
 
+        const joinTracksHelpText = `If there are multiple tracks in the GPX file,
+            then join them together. Otherwise, only show the first one.
+            Note that most files only have one track.`;
+
         const handleFiles = (files: FileList) =>
-            this.props.onGpxLoad(files[0], this.state.smoothingFactor);
+            this.props.onGpxLoad(
+                files[0],
+                this.state.smoothingFactor,
+                this.state.joinTracks
+            );
         return (
             <div className="center">
                 <h4 id="gpx-step-header">Load GPX file</h4>
@@ -79,6 +91,12 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
                         value={this.state.smoothingFactor}
                         helpText={gpsSmoothingHelpEssay}
                         onChange={(value) => this.setState({ smoothingFactor: value })}
+                    />
+                    <CheckboxControlInputComponent
+                        labelText="Join Tracks"
+                        defaultChecked={this.state.joinTracks}
+                        helpText={joinTracksHelpText}
+                        onChange={(checked) => this.setState({ joinTracks: checked })}
                     />
                 </div>
             </div>

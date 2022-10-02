@@ -22,7 +22,13 @@ export default class RangeSliderComponent extends React.Component<Props, {}> {
         const label = <label>{this.props.label}</label>;
         const input = (
             <div style={{ display: 'inline' }}>
-                <label style={{ marginRight: '5px', width: '4ch', display: 'inline-block' }}>
+                <label
+                    style={{
+                        marginRight: '5px',
+                        width: '4ch',
+                        display: 'inline-block',
+                    }}
+                >
                     {this.props.value.toFixed(fixedValue)}
                 </label>
                 <input

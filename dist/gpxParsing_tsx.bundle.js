@@ -79,10 +79,15 @@ function smoothPoints(originalPoints, percentileCutoff) {
     console.log(`After smoothing: ${originalPoints.length} -> ${smoothedPoints.length}`);
     return smoothedPoints;
 }
-function parseGpxFile(gpxContents, smoothingFactor = 0.3) {
+function parseGpxFile(gpxContents, smoothingFactor = 0.3, joinTracks = false) {
     const gpx = new (gpxparser__WEBPACK_IMPORTED_MODULE_0___default())();
     gpx.parse(gpxContents);
-    const originalPoints = gpx.tracks[0].points;
+    const originalPoints = joinTracks
+        ? gpx.tracks.flatMap((track) => track.points)
+        : gpx.tracks[0].points;
+    const name = joinTracks
+        ? gpx.tracks.map((t) => t.name).join(', ')
+        : gpx.tracks[0].name;
     let points = smoothingFactor != null
         ? smoothPoints(originalPoints, smoothingFactor)
         : originalPoints;
@@ -94,7 +99,7 @@ function parseGpxFile(gpxContents, smoothingFactor = 0.3) {
     return {
         distance,
         points,
-        name: gpx.tracks[0].name,
+        name,
         sizeBytes: gpxContents.length,
     };
 }

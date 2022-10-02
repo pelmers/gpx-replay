@@ -18,6 +18,7 @@ import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import RangeSliderComponent from './RangeSliderComponent';
 import LabelInputWithHelp from './LabelInputWithHelp';
+import CheckboxControlInputComponent from './CheckboxControlInputComponent';
 
 type Props = {
     gpxInfo: GpxInfo;
@@ -414,38 +415,18 @@ export default class MapComponent extends React.Component<Props, State> {
                     </div>
                 </div>
                 <div className="center control-group">
-                    <LabelInputWithHelp
-                        label={<label>FollowCam</label>}
-                        input={
-                            <input
-                                type="checkbox"
-                                defaultChecked={this.state.useFollowCam}
-                                onChange={() =>
-                                    this.setState({
-                                        useFollowCam: !this.state.useFollowCam,
-                                    })
-                                }
-                                style={{ maxWidth: '32px' }}
-                            />
-                        }
-                        helpText={'When checked, camera follows point during playback'}
+                    <CheckboxControlInputComponent
+                        labelText="FollowCam"
+                        defaultChecked={this.state.useFollowCam}
+                        helpText="When checked, camera follows point during playback"
+                        onChange={(checked) => this.setState({ useFollowCam: checked })}
                     />
-                    <LabelInputWithHelp
-                        label={<label>FollowTrack</label>}
-                        input={
-                            <input
-                                type="checkbox"
-                                defaultChecked={this.state.useFollowTrack}
-                                onChange={() =>
-                                    this.setState({
-                                        useFollowTrack: !this.state.useFollowTrack,
-                                    })
-                                }
-                                style={{ maxWidth: '32px' }}
-                            />
-                        }
-                        helpText={
-                            'When checked, GPX track follows point during playback'
+                    <CheckboxControlInputComponent
+                        labelText="FollowTrack"
+                        defaultChecked={this.state.useFollowCam}
+                        helpText="When checked, GPX track follows point during playback"
+                        onChange={(checked) =>
+                            this.setState({ useFollowTrack: checked })
                         }
                     />
                 </div>

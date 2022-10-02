@@ -33374,6 +33374,29 @@ if (false) {} else {
 
 /***/ }),
 
+/***/ "./components/CheckboxControlInputComponent.tsx":
+/*!******************************************************!*\
+  !*** ./components/CheckboxControlInputComponent.tsx ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CheckboxControlInputComponent)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LabelInputWithHelp */ "./components/LabelInputWithHelp.tsx");
+
+
+function CheckboxControlInputComponent(props) {
+    const { labelText, defaultChecked, helpText, onChange } = props;
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, labelText), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: defaultChecked, onChange: (evt) => onChange(evt.target.checked), style: { maxWidth: '32px' } }), helpText: helpText }));
+}
+
+
+/***/ }),
+
 /***/ "./components/ErrorComponent.tsx":
 /*!***************************************!*\
   !*** ./components/ErrorComponent.tsx ***!
@@ -33446,7 +33469,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
+/* harmony import */ var _CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CheckboxControlInputComponent */ "./components/CheckboxControlInputComponent.tsx");
+/* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
+
 
 
 class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
@@ -33455,6 +33480,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
         this.gpxInputRef = react__WEBPACK_IMPORTED_MODULE_0___default().createRef();
         this.state = {
             smoothingFactor: 0.8,
+            joinTracks: false,
         };
     }
     render() {
@@ -33464,7 +33490,10 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
             The exact number of points is not known in advance;
             it's calculated based on multiplying the smoothing factor with the median distance in the data.
             Consecutive points closer than this distance are merged until they exceed it.`;
-        const handleFiles = (files) => this.props.onGpxLoad(files[0], this.state.smoothingFactor);
+        const joinTracksHelpText = `If there are multiple tracks in the GPX file,
+            then join them together. Otherwise, only show the first one.
+            Note that most files only have one track.`;
+        const handleFiles = (files) => this.props.onGpxLoad(files[0], this.state.smoothingFactor, this.state.joinTracks);
         return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h4", { id: "gpx-step-header" }, "Load GPX file"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "gpx-step-contents" },
@@ -33485,7 +33514,8 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
                         e.stopPropagation();
                     } }, "Or drag and drop here")),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { label: "GPS Smoothing", min: 0.0, max: 50, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }))));
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_2__["default"], { label: "GPS Smoothing", min: 0.0, max: 50, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { labelText: "Join Tracks", defaultChecked: this.state.joinTracks, helpText: joinTracksHelpText, onChange: (checked) => this.setState({ joinTracks: checked }) }))));
     }
 }
 
@@ -33539,7 +33569,11 @@ class RangeSliderComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default()
         const fixedValue = Number.isInteger(this.props.step * 10) ? 1 : 2;
         const label = react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, this.props.label);
         const input = (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { style: { display: 'inline' } },
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: { marginRight: '5px', width: '4ch', display: 'inline-block' } }, this.props.value.toFixed(fixedValue)),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", { style: {
+                    marginRight: '5px',
+                    width: '4ch',
+                    display: 'inline-block',
+                } }, this.props.value.toFixed(fixedValue)),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "range", min: this.props.min, max: this.props.max, step: this.props.step, value: this.props.value, onChange: (e) => this.props.onChange(Number(e.target.value)) })));
         return this.props.helpText ? (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_1__["default"], { label: label, input: input, helpText: this.props.helpText })) : (react__WEBPACK_IMPORTED_MODULE_0___default().createElement((react__WEBPACK_IMPORTED_MODULE_0___default().Fragment), null,
             label,
@@ -33854,7 +33888,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor() {
         super(...arguments);
         this.state = {};
-        this.onFileAdded = (file, smoothingFactor) => __awaiter(this, void 0, void 0, function* () {
+        this.onFileAdded = (file, smoothingFactor, joinTracks) => __awaiter(this, void 0, void 0, function* () {
             this.setState({ isLoadingFile: true });
             try {
                 // Import the map component async so the bundle can be split
@@ -33866,7 +33900,7 @@ class App extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
                 this.setState({
                     isLoadingFile: false,
                     gpxError: undefined,
-                    gpxInfo: gpxParse.default(gpxContents, smoothingFactor),
+                    gpxInfo: gpxParse.default(gpxContents, smoothingFactor, joinTracks),
                     mapComponent: mapComponent.default,
                 });
             }

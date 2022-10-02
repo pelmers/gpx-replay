@@ -50,12 +50,18 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
 
 export default function parseGpxFile(
     gpxContents: string,
-    smoothingFactor: number = 0.3
+    smoothingFactor: number = 0.3,
+    joinTracks: boolean = false
 ): GpxInfo {
     const gpx = new GpxParser();
     gpx.parse(gpxContents);
 
-    const originalPoints = gpx.tracks[0].points;
+    const originalPoints = joinTracks
+        ? gpx.tracks.flatMap((track) => track.points)
+        : gpx.tracks[0].points;
+    const name = joinTracks
+        ? gpx.tracks.map((t) => t.name).join(', ')
+        : gpx.tracks[0].name;
     let points =
         smoothingFactor != null
             ? smoothPoints(originalPoints, smoothingFactor)
@@ -73,7 +79,7 @@ export default function parseGpxFile(
     return {
         distance,
         points,
-        name: gpx.tracks[0].name,
+        name,
         sizeBytes: gpxContents.length,
     };
 }

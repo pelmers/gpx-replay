@@ -20,6 +20,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _turf_turf__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @turf/turf */ "../node_modules/@turf/turf/dist/es/index.js");
 /* harmony import */ var _RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./RangeSliderComponent */ "./components/RangeSliderComponent.tsx");
 /* harmony import */ var _LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./LabelInputWithHelp */ "./components/LabelInputWithHelp.tsx");
+/* harmony import */ var _CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./CheckboxControlInputComponent */ "./components/CheckboxControlInputComponent.tsx");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -29,6 +30,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -360,12 +362,8 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"))),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowCam"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowCam, onChange: () => this.setState({
-                            useFollowCam: !this.state.useFollowCam,
-                        }), style: { maxWidth: '32px' } }), helpText: 'When checked, camera follows point during playback' }),
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_LabelInputWithHelp__WEBPACK_IMPORTED_MODULE_6__["default"], { label: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", null, "FollowTrack"), input: react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { type: "checkbox", defaultChecked: this.state.useFollowTrack, onChange: () => this.setState({
-                            useFollowTrack: !this.state.useFollowTrack,
-                        }), style: { maxWidth: '32px' } }), helpText: 'When checked, GPX track follows point during playback' })),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_7__["default"], { labelText: "FollowCam", defaultChecked: this.state.useFollowCam, helpText: "When checked, camera follows point during playback", onChange: (checked) => this.setState({ useFollowCam: checked }) }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_7__["default"], { labelText: "FollowTrack", defaultChecked: this.state.useFollowCam, helpText: "When checked, GPX track follows point during playback", onChange: (checked) => this.setState({ useFollowTrack: checked }) })),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center control-group" },
                 this.state.useFollowCam && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: "Follow Sensitivity", min: 0, max: 180, step: 1, helpText: "In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan.", value: this.state.followSensitivity, onChange: (v) => this.setState({ followSensitivity: v }) })),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_5__["default"], { label: 'Playback Rate', min: 0.2, max: 20, step: 0.2, value: this.state.playbackRate, helpText: "Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length).", onChange: (value) => this.setState({ playbackRate: value }) })),
