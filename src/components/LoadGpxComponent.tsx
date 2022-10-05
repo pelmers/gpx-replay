@@ -1,6 +1,5 @@
 import React from 'react';
 import CheckboxControlInputComponent from './CheckboxControlInputComponent';
-import LabelInputWithHelp from './LabelInputWithHelp';
 import RangeSliderComponent from './RangeSliderComponent';
 
 type Props = {
