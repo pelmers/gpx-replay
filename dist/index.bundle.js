@@ -33479,7 +33479,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
         super(...arguments);
         this.gpxInputRef = react__WEBPACK_IMPORTED_MODULE_0___default().createRef();
         this.state = {
-            smoothingFactor: 0.8,
+            smoothingFactor: 1.0,
             joinTracks: false,
         };
     }
@@ -33514,7 +33514,7 @@ class LoadGpxComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Com
                         e.stopPropagation();
                     } }, "Or drag and drop here")),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "control-group" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_2__["default"], { label: "GPS Smoothing", min: 0.0, max: 50, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }),
+                react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_RangeSliderComponent__WEBPACK_IMPORTED_MODULE_2__["default"], { label: "GPS Smoothing", min: 0.0, max: 150, step: 0.1, value: this.state.smoothingFactor, helpText: gpsSmoothingHelpEssay, onChange: (value) => this.setState({ smoothingFactor: value }) }),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_CheckboxControlInputComponent__WEBPACK_IMPORTED_MODULE_1__["default"], { labelText: "Join Tracks", defaultChecked: this.state.joinTracks, helpText: joinTracksHelpText, onChange: (checked) => this.setState({ joinTracks: checked }) }))));
     }
 }
