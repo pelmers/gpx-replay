@@ -28,6 +28,7 @@ type Props = {
 type State = {
     useFollowCam: boolean;
     followSensitivity: number;
+    followMomentum: number;
     useFollowTrack: boolean;
     mapStyle: string;
     // pointsPerSecond is a fixed value that means the number of points each frame
@@ -56,6 +57,10 @@ export default class MapComponent extends React.Component<Props, State> {
     // TODO: can i put this number in the state?
     playhead: number = 0;
     lastAnimationTime: number | null = null;
+    lastFollowcamMoveVector: {
+        lastVec: [number, number] | null;
+        lastCenter: turf.Position | null;
+    } = { lastVec: null, lastCenter: null };
     animationHandle: number;
     point = {
         type: 'FeatureCollection' as const,
@@ -76,6 +81,7 @@ export default class MapComponent extends React.Component<Props, State> {
         this.state = {
             useFollowCam: false,
             followSensitivity: 45,
+            followMomentum: 0,
             useFollowTrack: false,
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
             // divide by 60 seconds per minute
@@ -163,6 +169,61 @@ export default class MapComponent extends React.Component<Props, State> {
         };
     }
 
+    resetFollowCamMomemtum() {
+        this.lastFollowcamMoveVector = { lastVec: null, lastCenter: null };
+    }
+
+    /**
+     * Find new map position parameters based on followcam settings
+     * @param timeDeltaS time since the last frame
+     * @param pointPos the lng/lat position of the point
+     * @param bearing the bearing of the point
+     * @returns parameters {center: Position, fixedBearing: number} for map view update
+     */
+    updateFollowCamParameters(
+        timeDeltaS: number,
+        pointPos: turf.Position,
+        bearing: number
+    ) {
+        const rot = bearingDiff(this.map.getBearing(), bearing);
+        // Cap the camera rotation rate at specified degrees/second to prevent dizziness
+        // After adding the rotation, reset domain to [-180, 180]
+        // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
+        const changeCap = this.state.followSensitivity * timeDeltaS;
+        const fixedBearing = fixBearingDomain(
+            this.map.getBearing() + clamp(rot, -changeCap, changeCap)
+        );
+        let newCenter = pointPos;
+        const { lastVec, lastCenter } = this.lastFollowcamMoveVector;
+        if (this.state.isPlaying && lastVec == null && lastCenter != null) {
+            // We are playing but we have not recorded a last camera move (so this is first frame)
+            this.lastFollowcamMoveVector.lastVec = [
+                pointPos[0] - lastCenter[0],
+                pointPos[1] - lastCenter[1],
+            ];
+        } else if (this.state.isPlaying && lastVec != null && lastCenter != null) {
+            // We are playing and we know a last movement vector
+            const baseMoveVector = [
+                pointPos[0] - lastCenter[0],
+                pointPos[1] - lastCenter[1],
+            ];
+            // Take the weighted sum between baseMoveVector and lastFollowcamMoveVector
+            const newMoveVector = [
+                (1 - this.state.followMomentum) * baseMoveVector[0] +
+                    this.state.followMomentum * lastVec[0],
+                (1 - this.state.followMomentum) * baseMoveVector[1] +
+                    this.state.followMomentum * lastVec[1],
+            ];
+            // Add the newMoveVector to the last center to get the new center
+            newCenter = [
+                lastCenter[0] + newMoveVector[0],
+                lastCenter[1] + newMoveVector[1],
+            ];
+        }
+        this.lastFollowcamMoveVector.lastCenter = newCenter;
+        return { fixedBearing, center: newCenter };
+    }
+
     /**
      * Update the point's position on the map, and possibly animate the camera to follow.
      * Also updates the progress bar and track display if on FollowTrack
@@ -191,17 +252,13 @@ export default class MapComponent extends React.Component<Props, State> {
         }
 
         if (this.state.useFollowCam) {
-            const rot = bearingDiff(this.map.getBearing(), bearing);
-            // Cap the camera rotation rate at specified degrees/second to prevent dizziness
-            // After adding the rotation, reset domain to [-180, 180]
-            // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
-            const changeCap = this.state.followSensitivity * timeDeltaS;
-            const fixedBearing = fixBearingDomain(
-                this.map.getBearing() + clamp(rot, -changeCap, changeCap)
+            const { center, fixedBearing } = this.updateFollowCamParameters(
+                timeDeltaS,
+                point.geometry.coordinates,
+                bearing
             );
-            const center = point.geometry.coordinates;
             this.map.easeTo({
-                // @ts-ignore bug in typings
+                // @ts-ignore this is fine
                 center,
                 bearing: fixedBearing,
                 duration: timeDeltaS * 1000,
@@ -284,6 +341,7 @@ export default class MapComponent extends React.Component<Props, State> {
         offsetFraction = Math.max(offsetFraction, 0);
         offsetFraction = Math.min(offsetFraction, 1);
         const newPosition = this.props.gpxInfo.points.length * offsetFraction;
+        this.resetFollowCamMomemtum();
         this.updatePointPosition(newPosition, 0);
         this.playhead = newPosition;
     };
@@ -358,8 +416,13 @@ export default class MapComponent extends React.Component<Props, State> {
     }
 
     async componentWillUpdate(props: Props, nextState: State) {
+        if (!nextState.isPlaying) {
+            // If we paused then reset the camera movement vector
+            this.resetFollowCamMomemtum();
+        }
         // Did we toggle followcam?
         if (nextState.useFollowCam !== this.state.useFollowCam) {
+            this.resetFollowCamMomemtum();
             // Then update the camera on the map
             if (nextState.useFollowCam) {
                 this.map.easeTo({
@@ -450,7 +513,10 @@ export default class MapComponent extends React.Component<Props, State> {
                         </progress>
                     </div>
                 </div>
-                <MapComponentOptions state={this.state} setState={this.setState.bind(this)} />
+                <MapComponentOptions
+                    state={this.state}
+                    setState={this.setState.bind(this)}
+                />
             </>
         );
     }
@@ -481,9 +547,20 @@ function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
                         min={0}
                         max={180}
                         step={1}
-                        helpText="In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan."
+                        helpText="In FollowCam, limits how quickly the camera can rotate, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan."
                         value={state.followSensitivity}
                         onChange={(v) => setState({ followSensitivity: v })}
+                    />
+                )}
+                {state.useFollowCam && (
+                    <RangeSliderComponent
+                        label="Follow Momentum"
+                        min={0}
+                        max={0.99}
+                        step={0.01}
+                        helpText="In FollowCam, adjusts the camera movement by continuing to pan in the direction of the last frame, scaled by this factor. So a factor of 0 means we move the map such that the track point is exactly in the center. A factor of 1 would mean we only move in the same direction as the last frame. The camera will move more smoothly but will not follow the exact point as closely."
+                        value={state.followMomentum}
+                        onChange={(v) => setState({ followMomentum: v })}
                     />
                 )}
 

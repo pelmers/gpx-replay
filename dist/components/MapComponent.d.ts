@@ -9,6 +9,7 @@ declare type Props = {
 declare type State = {
     useFollowCam: boolean;
     followSensitivity: number;
+    followMomentum: number;
     useFollowTrack: boolean;
     mapStyle: string;
     pointsPerSecond: number;
@@ -27,6 +28,10 @@ export default class MapComponent extends React.Component<Props, State> {
     fullscreenControl: mapboxgl.FullscreenControl;
     playhead: number;
     lastAnimationTime: number | null;
+    lastFollowcamMoveVector: {
+        lastVec: [number, number] | null;
+        lastCenter: turf.Position | null;
+    };
     animationHandle: number;
     point: {
         type: "FeatureCollection";
@@ -67,6 +72,18 @@ export default class MapComponent extends React.Component<Props, State> {
     interpolatePoint(position: number): {
         point: turf.helpers.Feature<turf.helpers.Point, turf.helpers.Properties>;
         bearing: number;
+    };
+    resetFollowCamMomemtum(): void;
+    /**
+     * Find new map position parameters based on followcam settings
+     * @param timeDeltaS time since the last frame
+     * @param pointPos the lng/lat position of the point
+     * @param bearing the bearing of the point
+     * @returns parameters {center: Position, fixedBearing: number} for map view update
+     */
+    updateFollowCamParameters(timeDeltaS: number, pointPos: turf.Position, bearing: number): {
+        fixedBearing: number;
+        center: turf.helpers.Position;
     };
     /**
      * Update the point's position on the map, and possibly animate the camera to follow.
