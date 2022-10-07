@@ -395,7 +395,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"))),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentOptions, { state: this.state, setState: this.setState })));
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentOptions, { state: this.state, setState: this.setState.bind(this) })));
     }
 }
 function MapComponentOptions(props) {

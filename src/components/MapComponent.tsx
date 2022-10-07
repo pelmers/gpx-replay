@@ -450,7 +450,7 @@ export default class MapComponent extends React.Component<Props, State> {
                         </progress>
                     </div>
                 </div>
-                <MapComponentOptions state={this.state} setState={this.setState} />
+                <MapComponentOptions state={this.state} setState={this.setState.bind(this)} />
             </>
         );
     }
