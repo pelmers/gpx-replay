@@ -441,12 +441,17 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 " use space to play/pause, F to full screen, H to hide controls"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "map-container-container" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef })),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
-                react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: () => this.setState({ isPlaying: !this.state.isPlaying }) }, this.state.isPlaying ? '❚❚' : '►'),
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: this.progressRef, onClick: this.handleProgressClick }, "Progress"))),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentProgress, { isPlaying: this.state.isPlaying, onPlayClick: () => {
+                    this.setState({ isPlaying: !this.state.isPlaying });
+                }, onProgressClick: this.handleProgressClick, progressRef: this.progressRef }),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentOptions, { state: this.state, setState: this.setState.bind(this) })));
     }
+}
+function MapComponentProgress(props) {
+    return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "center" },
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "progress-container" },
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { "aria-label": "Play", role: "button", className: "play-button", onClick: props.onPlayClick }, props.isPlaying ? '❚❚' : '►'),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement("progress", { max: "100", value: "0", className: "play-progress", ref: props.progressRef, onClick: props.onProgressClick }, "Progress"))));
 }
 function MapComponentOptions(props) {
     const { state, setState } = props;

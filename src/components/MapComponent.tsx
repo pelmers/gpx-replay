@@ -490,29 +490,14 @@ export default class MapComponent extends React.Component<Props, State> {
                 <div className="map-container-container">
                     <div id="map-container" ref={this.mapDivRef} />
                 </div>
-                <div className="center">
-                    <div className="progress-container">
-                        <button
-                            aria-label="Play"
-                            role="button"
-                            className="play-button"
-                            onClick={() =>
-                                this.setState({ isPlaying: !this.state.isPlaying })
-                            }
-                        >
-                            {this.state.isPlaying ? '❚❚' : '►'}
-                        </button>
-                        <progress
-                            max="100"
-                            value="0"
-                            className="play-progress"
-                            ref={this.progressRef}
-                            onClick={this.handleProgressClick}
-                        >
-                            Progress
-                        </progress>
-                    </div>
-                </div>
+                <MapComponentProgress
+                    isPlaying={this.state.isPlaying}
+                    onPlayClick={() => {
+                        this.setState({ isPlaying: !this.state.isPlaying });
+                    }}
+                    onProgressClick={this.handleProgressClick}
+                    progressRef={this.progressRef}
+                />
                 <MapComponentOptions
                     state={this.state}
                     setState={this.setState.bind(this)}
@@ -520,6 +505,37 @@ export default class MapComponent extends React.Component<Props, State> {
             </>
         );
     }
+}
+
+function MapComponentProgress(props: {
+    onPlayClick: React.MouseEventHandler;
+    onProgressClick: React.MouseEventHandler;
+    isPlaying: boolean;
+    progressRef: React.Ref<HTMLProgressElement>;
+}) {
+    return (
+        <div className="center">
+            <div className="progress-container">
+                <button
+                    aria-label="Play"
+                    role="button"
+                    className="play-button"
+                    onClick={props.onPlayClick}
+                >
+                    {props.isPlaying ? '❚❚' : '►'}
+                </button>
+                <progress
+                    max="100"
+                    value="0"
+                    className="play-progress"
+                    ref={props.progressRef}
+                    onClick={props.onProgressClick}
+                >
+                    Progress
+                </progress>
+            </div>
+        </div>
+    );
 }
 
 function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
