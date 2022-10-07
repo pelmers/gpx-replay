@@ -11,6 +11,8 @@
         "lib": ["es2017", "dom"],
         "declaration": true,
         "allowSyntheticDefaultImports": true,
+        "strictBindCallApply": true,
+        "noImplicitThis": true,
         "esModuleInterop": true
     },
     "include": ["src/**/*"],
