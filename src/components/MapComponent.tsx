@@ -43,6 +43,8 @@ type State = {
     pointIconSize: number;
 };
 
+type SetStateFunc = MapComponent['setState'];
+
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef = React.createRef<HTMLDivElement>();
     progressRef = React.createRef<HTMLProgressElement>();
@@ -75,7 +77,6 @@ export default class MapComponent extends React.Component<Props, State> {
             useFollowCam: false,
             followSensitivity: 45,
             useFollowTrack: false,
-            // mapStyle: 'mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy',
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
             // divide by 60 seconds per minute
             pointsPerSecond: props.gpxInfo.points.length / 60,
@@ -90,6 +91,15 @@ export default class MapComponent extends React.Component<Props, State> {
         this.point.features[0].geometry.coordinates = origin;
     }
 
+    /**
+     * The main animation loop, checks if we are in playing state and then calls animationBody
+     * once the time since last animation exceeds minAnimationTime.
+     * On the first frame of playback we do not actually run the animation body,
+     * but instead we only store the time.
+     * That's because the camera animation expects a duration and we do not know in
+     * advance what the frame timing is.
+     * @param t timestamp
+     */
     animationLoop = (t: number) => {
         if (!this.state.isPlaying) {
             this.animationHandle = requestAnimationFrame(this.animationLoop);
@@ -109,10 +119,15 @@ export default class MapComponent extends React.Component<Props, State> {
         this.animationHandle = requestAnimationFrame(this.animationLoop);
     };
 
+    /**
+     * Runs the animation by computing a new position based on the playback rate and
+     * updating the point to that position.
+     * @param timeDeltaMs time since last animation frame in milliseconds
+     */
     animationBody(timeDeltaMs: number): void {
         // Note: times are in milliseconds.
         const timeDeltaS = timeDeltaMs / 1000;
-        // Compute how many frames to advance the playhead based on the time difference and playback rate
+        // Compute how many points to advance the playhead based on the time difference and playback rate
         const moveDelta =
             timeDeltaS * this.state.playbackRate * this.state.pointsPerSecond;
         const { points } = this.props.gpxInfo;
@@ -126,6 +141,12 @@ export default class MapComponent extends React.Component<Props, State> {
         this.playhead = newPosition;
     }
 
+    /**
+     * Compute an in-between coordinate between two points on the gpx track.
+     * @param position possibly fractional position in the range [0, points.length - 1)
+     * @returns an object {point: Feature, bearing: number}
+     * Note: the end range is not inclusive! position must be strictly less than points.length - 1
+     */
     interpolatePoint(position: number) {
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(position);
@@ -142,6 +163,12 @@ export default class MapComponent extends React.Component<Props, State> {
         };
     }
 
+    /**
+     * Update the point's position on the map, and possibly animate the camera to follow.
+     * Also updates the progress bar and track display if on FollowTrack
+     * @param newPosition index into the gpx track, can be fractional
+     * @param timeDeltaS how long the camera move should take, in seconds
+     */
     updatePointPosition(newPosition: number, timeDeltaS: number) {
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(newPosition);
@@ -165,7 +192,7 @@ export default class MapComponent extends React.Component<Props, State> {
 
         if (this.state.useFollowCam) {
             const rot = bearingDiff(this.map.getBearing(), bearing);
-            // Cap the camera rotation rate at 30 degrees/second to prevent dizziness
+            // Cap the camera rotation rate at specified degrees/second to prevent dizziness
             // After adding the rotation, reset domain to [-180, 180]
             // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
             const changeCap = this.state.followSensitivity * timeDeltaS;
@@ -187,6 +214,10 @@ export default class MapComponent extends React.Component<Props, State> {
         }
     }
 
+    /**
+     * Update the gps track, pass in `points.length - 1` to show the entire track.
+     * @param position index into the gpx track, can be fractional
+     */
     updateTrackDisplay(position: number) {
         const pointIndex = Math.floor(position);
         const { points } = this.props.gpxInfo;
@@ -197,7 +228,6 @@ export default class MapComponent extends React.Component<Props, State> {
             const sliceToPlayhead = points.slice(0, pointIndex + 1);
             sliceToPlayhead.push(geoJsonToPoint(this.interpolatePoint(position).point));
             const source = this.map.getSource('gpxTrack') as mapboxgl.GeoJSONSource;
-            // TODO: this seems to lag with followcam and lots of points?
             source.setData(pointsToGeoJsonFeature(sliceToPlayhead).data);
         }
     }
@@ -212,7 +242,9 @@ export default class MapComponent extends React.Component<Props, State> {
             e.preventDefault();
             e.stopPropagation();
             if (document.fullscreenElement == null) {
-                this.mapDivRef.current!.requestFullscreen();
+                if (this.mapDivRef.current != null) {
+                    this.mapDivRef.current.requestFullscreen();
+                }
             } else {
                 document.exitFullscreen();
             }
@@ -345,6 +377,8 @@ export default class MapComponent extends React.Component<Props, State> {
                 this.map.fitBounds(findBounds(props.gpxInfo.points));
             }
         }
+        // we don't bother checking of follow track changed between states
+        // because the visible behavior is the same
         if (nextState.useFollowTrack) {
             this.updateTrackDisplay(this.playhead);
         } else {
@@ -354,12 +388,14 @@ export default class MapComponent extends React.Component<Props, State> {
             // Changing the style also resets the track and stuff, just re-create it.
             await this.createMapFromState(nextState);
         }
+        // should we update the point icon?
         if (nextState.pointIcon !== this.state.pointIcon) {
             this.map.setLayoutProperty('point', 'icon-image', nextState.pointIcon);
         }
         if (nextState.pointIconSize !== this.state.pointIconSize) {
             this.map.setLayoutProperty('point', 'icon-size', nextState.pointIconSize);
         }
+        // should we update the gpx track?
         if (nextState.gpxTrackColor !== this.state.gpxTrackColor) {
             this.map.setPaintProperty(
                 'gpxTrack',
@@ -414,139 +450,144 @@ export default class MapComponent extends React.Component<Props, State> {
                         </progress>
                     </div>
                 </div>
-                <div className="center control-group">
-                    <CheckboxControlInputComponent
-                        labelText="FollowCam"
-                        defaultChecked={this.state.useFollowCam}
-                        helpText="When checked, camera follows point during playback"
-                        onChange={(checked) => this.setState({ useFollowCam: checked })}
-                    />
-                    <CheckboxControlInputComponent
-                        labelText="FollowTrack"
-                        defaultChecked={this.state.useFollowCam}
-                        helpText="When checked, GPX track follows point during playback"
-                        onChange={(checked) =>
-                            this.setState({ useFollowTrack: checked })
-                        }
-                    />
-                </div>
-                <div className="center control-group">
-                    {this.state.useFollowCam && (
-                        <RangeSliderComponent
-                            label="Follow Sensitivity"
-                            min={0}
-                            max={180}
-                            step={1}
-                            helpText="In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan."
-                            value={this.state.followSensitivity}
-                            onChange={(v) => this.setState({ followSensitivity: v })}
-                        />
-                    )}
-
-                    <RangeSliderComponent
-                        label={'Playback Rate'}
-                        min={0.2}
-                        max={20}
-                        step={0.2}
-                        value={this.state.playbackRate}
-                        helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
-                        onChange={(value) => this.setState({ playbackRate: value })}
-                    />
-                </div>
-                <div className="center control-group">
-                    {/* styles from https://docs.mapbox.com/api/maps/styles/ */}
-                    <label htmlFor="map-style">Map Style</label>
-                    <select
-                        name="map style"
-                        onChange={(evt) => {
-                            // Also set isPlaying to false because changing the style reloads the map
-                            // while the map is loading, the point and the track are not yet set
-                            this.setState({
-                                mapStyle: evt.target.value,
-                                isPlaying: false,
-                            });
-                        }}
-                        defaultValue={this.state.mapStyle}
-                    >
-                        <option value="mapbox://styles/mapbox/outdoors-v11">
-                            Outdoors
-                        </option>
-                        <option value="mapbox://styles/mapbox/streets-v11">
-                            Streets
-                        </option>
-                        <option value="mapbox://styles/mapbox/light-v10">Light</option>
-                        <option value="mapbox://styles/mapbox/dark-v10">Dark</option>
-                        <option value="mapbox://styles/mapbox/satellite-v9">
-                            Satellite
-                        </option>
-                        <option value="mapbox://styles/mapbox/satellite-streets-v11">
-                            Satellite Streets
-                        </option>
-                        <option value="mapbox://styles/mapbox/navigation-day-v1">
-                            Navigation Day
-                        </option>
-                        <option value="mapbox://styles/mapbox/navigation-night-v1">
-                            Navigation Night
-                        </option>
-                        <option value="mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy">
-                            Peter Custom Satellite
-                        </option>
-                    </select>
-
-                    {/* List available at https://github.com/mapbox/mapbox-gl-styles#standard-icons  */}
-                    <LabelInputWithHelp
-                        label={<label>Point Icon</label>}
-                        input={
-                            <select
-                                defaultValue={this.state.pointIcon}
-                                onChange={(evt) => {
-                                    this.setState({ pointIcon: evt.target.value });
-                                }}
-                            >
-                                <option value="bicycle-15">Bicycle</option>
-                                <option value="rocket-15">Rocket</option>
-                                <option value="swimming-15">Swimmer</option>
-                                <option value="bus-15">Bus</option>
-                                <option value="rail-15">Train</option>
-                                <option value="pitch-15">Runner</option>
-                                <option value="car-15">Death Cage</option>
-                                <option value="circle-15">Circle</option>
-                            </select>
-                        }
-                        helpText={
-                            'Icon to use for the point. Note: not all styles support every icon. If you have a specific request please file an issue. (Or better yet, submit a fix!)'
-                        }
-                    />
-
-                    <RangeSliderComponent
-                        label={'Point Icon Size'}
-                        min={0.0}
-                        max={25}
-                        step={0.5}
-                        value={this.state.pointIconSize}
-                        onChange={(value) => this.setState({ pointIconSize: value })}
-                    />
-
-                    <label htmlFor="line-color">Line Color</label>
-                    <input
-                        type="color"
-                        name="line-color"
-                        defaultValue={this.state.gpxTrackColor}
-                        onChange={(ev) => {
-                            this.setState({ gpxTrackColor: ev.target.value });
-                        }}
-                    />
-
-                    <RangeSliderComponent
-                        label={'Line Thickness'}
-                        min={0.0}
-                        max={30}
-                        step={0.5}
-                        value={this.state.gpxTrackWidth}
-                        onChange={(value) => this.setState({ gpxTrackWidth: value })}
-                    />
-                </div>
+                <MapComponentOptions state={this.state} setState={this.setState} />
             </>
         );
     }
+}
+
+function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
+    const { state, setState } = props;
+    return (
+        <>
+            <div className="center control-group">
+                <CheckboxControlInputComponent
+                    labelText="FollowCam"
+                    defaultChecked={state.useFollowCam}
+                    helpText="When checked, camera follows point during playback"
+                    onChange={(checked) => setState({ useFollowCam: checked })}
+                />
+                <CheckboxControlInputComponent
+                    labelText="FollowTrack"
+                    defaultChecked={state.useFollowCam}
+                    helpText="When checked, GPX track follows point during playback"
+                    onChange={(checked) => setState({ useFollowTrack: checked })}
+                />
+            </div>
+            <div className="center control-group">
+                {state.useFollowCam && (
+                    <RangeSliderComponent
+                        label="Follow Sensitivity"
+                        min={0}
+                        max={180}
+                        step={1}
+                        helpText="In FollowCam, limits how quickly the camera can spin, expressed in degrees per second. At 0 the camera direction will be fixed, so it will only pan."
+                        value={state.followSensitivity}
+                        onChange={(v) => setState({ followSensitivity: v })}
+                    />
+                )}
+
+                <RangeSliderComponent
+                    label={'Playback Rate'}
+                    min={0.2}
+                    max={20}
+                    step={0.2}
+                    value={state.playbackRate}
+                    helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
+                    onChange={(value) => setState({ playbackRate: value })}
+                />
+            </div>
+            <div className="center control-group">
+                {/* styles from https://docs.mapbox.com/api/maps/styles/ */}
+                <label htmlFor="map-style">Map Style</label>
+                <select
+                    name="map style"
+                    onChange={(evt) => {
+                        // Also set isPlaying to false because changing the style reloads the map
+                        // while the map is loading, the point and the track are not yet set
+                        setState({
+                            mapStyle: evt.target.value,
+                            isPlaying: false,
+                        });
+                    }}
+                    defaultValue={state.mapStyle}
+                >
+                    <option value="mapbox://styles/mapbox/outdoors-v11">
+                        Outdoors
+                    </option>
+                    <option value="mapbox://styles/mapbox/streets-v11">Streets</option>
+                    <option value="mapbox://styles/mapbox/light-v10">Light</option>
+                    <option value="mapbox://styles/mapbox/dark-v10">Dark</option>
+                    <option value="mapbox://styles/mapbox/satellite-v9">
+                        Satellite
+                    </option>
+                    <option value="mapbox://styles/mapbox/satellite-streets-v11">
+                        Satellite Streets
+                    </option>
+                    <option value="mapbox://styles/mapbox/navigation-day-v1">
+                        Navigation Day
+                    </option>
+                    <option value="mapbox://styles/mapbox/navigation-night-v1">
+                        Navigation Night
+                    </option>
+                    <option value="mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy">
+                        Peter Custom Satellite
+                    </option>
+                </select>
+
+                {/* List available at https://github.com/mapbox/mapbox-gl-styles#standard-icons  */}
+                <LabelInputWithHelp
+                    label={<label>Point Icon</label>}
+                    input={
+                        <select
+                            defaultValue={state.pointIcon}
+                            onChange={(evt) => {
+                                setState({ pointIcon: evt.target.value });
+                            }}
+                        >
+                            <option value="bicycle-15">Bicycle</option>
+                            <option value="rocket-15">Rocket</option>
+                            <option value="swimming-15">Swimmer</option>
+                            <option value="bus-15">Bus</option>
+                            <option value="rail-15">Train</option>
+                            <option value="pitch-15">Runner</option>
+                            <option value="car-15">Death Cage</option>
+                            <option value="circle-15">Circle</option>
+                        </select>
+                    }
+                    helpText={
+                        'Icon to use for the point. Note: not all styles support every icon. If you have a specific request please file an issue. (Or better yet, submit a fix!)'
+                    }
+                />
+
+                <RangeSliderComponent
+                    label={'Point Icon Size'}
+                    min={0.0}
+                    max={25}
+                    step={0.5}
+                    value={state.pointIconSize}
+                    onChange={(value) => setState({ pointIconSize: value })}
+                />
+
+                <label htmlFor="line-color">Line Color</label>
+                <input
+                    type="color"
+                    name="line-color"
+                    defaultValue={state.gpxTrackColor}
+                    onChange={(ev) => {
+                        setState({ gpxTrackColor: ev.target.value });
+                    }}
+                />
+
+                <RangeSliderComponent
+                    label={'Line Thickness'}
+                    min={0.0}
+                    max={30}
+                    step={0.5}
+                    value={state.gpxTrackWidth}
+                    onChange={(value) => setState({ gpxTrackWidth: value })}
+                />
+            </div>
+        </>
+    );
 }
