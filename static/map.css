@@ -122,3 +122,8 @@ input[type='range'] {
         grid-template-columns: 160px auto;
     }
 }
+
+/* the sakura css makes this button too big so we will hide it */
+.mapboxgl-ctrl-attrib-button {
+    display: none;
+}
