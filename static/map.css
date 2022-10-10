@@ -114,7 +114,7 @@ input[type='range'] {
     padding: 10px;
     display: grid;
     grid-gap: 0.25rem;
-    grid-template-columns: 190px auto;
+    grid-template-columns: 195px auto;
 }
 
 @media (max-width: 684px) {
