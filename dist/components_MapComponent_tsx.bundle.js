@@ -38,6 +38,13 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+// TODO: make this configurable?
+const FPS = 40;
+// This value controls the size of the rolling window over which we find the camera momentum
+// In follow cam, new momentum vector = avg(last len(rolling avg window) camera vectors)
+// Higher values smooth out the movement more, lower makes it more reactive
+// Beware that setting it too low may cause camera to overshoot and oscillate
+const CAM_MOMENTUM_ROLLING_AVG_INTERVAL = Math.round(FPS * 2);
 class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Component) {
     constructor(props) {
         super(props);
@@ -49,7 +56,6 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         // TODO: can i put this number in the state?
         this.playhead = 0;
         this.lastAnimationTime = null;
-        this.lastFollowcamMoveVector = { lastVec: null, lastCenter: null };
         this.point = {
             type: 'FeatureCollection',
             features: [
@@ -84,7 +90,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 return;
             }
             // cap at 40 fps
-            const minAnimationTime = 1000 / 40;
+            const minAnimationTime = 1000 / FPS;
             if (t - this.lastAnimationTime > minAnimationTime) {
                 this.animationBody(t - this.lastAnimationTime);
                 this.lastAnimationTime = t;
@@ -148,6 +154,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         };
         const origin = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.toGeoJson)(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
+        this.resetFollowCamMomemtum();
     }
     /**
      * Runs the animation by computing a new position based on the playback rate and
@@ -187,32 +194,30 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
         };
     }
     resetFollowCamMomemtum() {
-        this.lastFollowcamMoveVector = { lastVec: null, lastCenter: null };
+        this.lastFollowcamMoveVector = {
+            momentumVec: null,
+            lastCenter: null,
+            lastVecs: [],
+        };
     }
     /**
      * Find new map position parameters based on followcam settings
      * @param timeDeltaS time since the last frame
      * @param pointPos the lng/lat position of the point
-     * @param bearing the bearing of the point
      * @returns parameters {center: Position, fixedBearing: number} for map view update
      */
-    updateFollowCamParameters(timeDeltaS, pointPos, bearing) {
-        const rot = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.bearingDiff)(this.map.getBearing(), bearing);
-        // Cap the camera rotation rate at specified degrees/second to prevent dizziness
-        // After adding the rotation, reset domain to [-180, 180]
-        // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
-        const changeCap = this.state.followSensitivity * timeDeltaS;
-        const fixedBearing = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.fixBearingDomain)(this.map.getBearing() + (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.clamp)(rot, -changeCap, changeCap));
+    updateFollowCamParameters(timeDeltaS, pointPos) {
         let newCenter = pointPos;
-        const { lastVec, lastCenter } = this.lastFollowcamMoveVector;
-        if (this.state.isPlaying && lastVec == null && lastCenter != null) {
+        const { momentumVec, lastCenter, lastVecs } = this.lastFollowcamMoveVector;
+        const { playbackRate } = this.state;
+        if (this.state.isPlaying && momentumVec == null && lastCenter != null) {
             // We are playing but we have not recorded a last camera move (so this is first frame)
-            this.lastFollowcamMoveVector.lastVec = [
-                pointPos[0] - lastCenter[0],
-                pointPos[1] - lastCenter[1],
+            this.lastFollowcamMoveVector.momentumVec = [
+                (pointPos[0] - lastCenter[0]) / playbackRate,
+                (pointPos[1] - lastCenter[1]) / playbackRate,
             ];
         }
-        else if (this.state.isPlaying && lastVec != null && lastCenter != null) {
+        else if (this.state.isPlaying && momentumVec != null && lastCenter != null) {
             // We are playing and we know a last movement vector
             const baseMoveVector = [
                 pointPos[0] - lastCenter[0],
@@ -221,18 +226,43 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             // Take the weighted sum between baseMoveVector and lastFollowcamMoveVector
             const newMoveVector = [
                 (1 - this.state.followMomentum) * baseMoveVector[0] +
-                    this.state.followMomentum * lastVec[0],
+                    this.state.followMomentum * momentumVec[0] * playbackRate,
                 (1 - this.state.followMomentum) * baseMoveVector[1] +
-                    this.state.followMomentum * lastVec[1],
+                    this.state.followMomentum * momentumVec[1] * playbackRate,
             ];
             // Add the newMoveVector to the last center to get the new center
             newCenter = [
                 lastCenter[0] + newMoveVector[0],
                 lastCenter[1] + newMoveVector[1],
             ];
+            // Record this camera movement in the history
+            lastVecs.push([
+                newMoveVector[0] / playbackRate,
+                newMoveVector[1] / playbackRate,
+            ]);
+            // If we exceed our rolling average threshold, remove the first one and update the momentum vector
+            if (lastVecs.length >
+                CAM_MOMENTUM_ROLLING_AVG_INTERVAL) {
+                lastVecs.shift();
+                const sum = lastVecs.reduce((acc, cur) => [acc[0] + cur[0], acc[1] + cur[1]], [0, 0]);
+                this.lastFollowcamMoveVector.momentumVec = [
+                    sum[0] / CAM_MOMENTUM_ROLLING_AVG_INTERVAL,
+                    sum[1] / CAM_MOMENTUM_ROLLING_AVG_INTERVAL,
+                ];
+            }
+        }
+        let cameraBearing = this.map.getBearing();
+        if (lastCenter) {
+            cameraBearing = _turf_turf__WEBPACK_IMPORTED_MODULE_4__.bearing(lastCenter, newCenter);
+            const rot = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.bearingDiff)(this.map.getBearing(), cameraBearing);
+            // Cap the camera rotation rate at specified degrees/second to prevent dizziness
+            // After adding the rotation, reset domain to [-180, 180]
+            // because moving from +170 to -170 is +20, which goes to 190, and out of bounds.
+            const changeCap = this.state.followSensitivity * timeDeltaS;
+            cameraBearing = (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.fixBearingDomain)(this.map.getBearing() + (0,_mapTools__WEBPACK_IMPORTED_MODULE_2__.clamp)(rot, -changeCap, changeCap));
         }
         this.lastFollowcamMoveVector.lastCenter = newCenter;
-        return { fixedBearing, center: newCenter };
+        return { cameraBearing, center: newCenter };
     }
     /**
      * Update the point's position on the map, and possibly animate the camera to follow.
@@ -258,11 +288,11 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
         }
         if (this.state.useFollowCam) {
-            const { center, fixedBearing } = this.updateFollowCamParameters(timeDeltaS, point.geometry.coordinates, bearing);
+            const { center, cameraBearing } = this.updateFollowCamParameters(timeDeltaS, point.geometry.coordinates);
             this.map.easeTo({
                 // @ts-ignore this is fine
                 center,
-                bearing: fixedBearing,
+                bearing: cameraBearing,
                 duration: timeDeltaS * 1000,
                 // Linear move speed
                 easing: (x) => x,
