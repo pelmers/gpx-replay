@@ -28,7 +28,6 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
     const smoothedPoints = [originalPoints[0]];
     let idx = 1;
     while (idx < originalPoints.length - 1) {
-        let segmentStart = originalPoints[idx];
         let summedDistance = 0;
         while (summedDistance < distanceCutoff && idx < originalPoints.length - 1) {
             summedDistance += turf.distance(
@@ -37,7 +36,7 @@ function smoothPoints(originalPoints: LatLon[], percentileCutoff: number) {
             );
             idx += 1;
         }
-        smoothedPoints.push(segmentStart, originalPoints[idx]);
+        smoothedPoints.push(originalPoints[idx]);
         idx += 1;
     }
     // We remember to add on the last point
