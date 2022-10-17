@@ -100,6 +100,7 @@ export default class MapComponent extends React.Component<Props, State> {
     windowKeyBinds: (e: KeyboardEvent) => void;
     componentWillUnmount(): void;
     componentDidMount(): Promise<void>;
+    handlePlayClick: () => void;
     handleProgressClick: (evt: {
         nativeEvent: {
             offsetX: number;

@@ -101,7 +101,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
             if (e.code === 'Space') {
                 e.preventDefault();
                 e.stopPropagation();
-                this.setState({ isPlaying: !this.state.isPlaying });
+                this.handlePlayClick();
             }
             if (e.code === 'KeyF') {
                 e.preventDefault();
@@ -127,6 +127,13 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                     this.map.addControl(this.fullscreenControl);
                 }
             }
+        };
+        this.handlePlayClick = () => {
+            // If we're at the end, reset to the beginning
+            if (this.playhead >= this.props.gpxInfo.points.length - 1) {
+                this.handleProgressClick({ nativeEvent: { offsetX: 0 } });
+            }
+            this.setState({ isPlaying: !this.state.isPlaying });
         };
         this.handleProgressClick = (evt) => {
             let offsetFraction = evt.nativeEvent.offsetX / this.progressRef.current.offsetWidth;
@@ -241,8 +248,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 newMoveVector[1] / playbackRate,
             ]);
             // If we exceed our rolling average threshold, remove the first one and update the momentum vector
-            if (lastVecs.length >
-                CAM_MOMENTUM_ROLLING_AVG_INTERVAL) {
+            if (lastVecs.length > CAM_MOMENTUM_ROLLING_AVG_INTERVAL) {
                 lastVecs.shift();
                 const sum = lastVecs.reduce((acc, cur) => [acc[0] + cur[0], acc[1] + cur[1]], [0, 0]);
                 this.lastFollowcamMoveVector.momentumVec = [
@@ -471,9 +477,7 @@ class MapComponent extends (react__WEBPACK_IMPORTED_MODULE_0___default().Compone
                 " use space to play/pause, F to full screen, H to hide controls"),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "map-container-container" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { id: "map-container", ref: this.mapDivRef })),
-            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentProgress, { isPlaying: this.state.isPlaying, onPlayClick: () => {
-                    this.setState({ isPlaying: !this.state.isPlaying });
-                }, onProgressClick: this.handleProgressClick, progressRef: this.progressRef }),
+            react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentProgress, { isPlaying: this.state.isPlaying, onPlayClick: this.handlePlayClick, onProgressClick: this.handleProgressClick, progressRef: this.progressRef }),
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement(MapComponentOptions, { state: this.state, setState: this.setState.bind(this) })));
     }
 }
