@@ -55,8 +55,9 @@ const clientConfig = {
 
     plugins: [
         new MakeJsArtWebpackPlugin({
-            imagePath: './static/logo.png',
-            cutoff: 0.32,
+            imagePath: './static/minilogo.jpg',
+            cutoff: 0.6,
+            invert: true,
         }),
         // Leave this uncommented to see a diagram of bundle space usage
         // it will open in the browser after build completes
