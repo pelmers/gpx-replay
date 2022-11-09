@@ -519,7 +519,7 @@ export default class MapComponent extends React.Component<Props, State> {
     }
 
     render() {
-        // TODO bonus: elevation profile?
+        // TODO bonus: elevation profile? (as the progress bar?)
         const mb = this.props.gpxInfo.sizeBytes / 1000000;
         return (
             <>

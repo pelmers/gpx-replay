@@ -11,11 +11,13 @@
     "author": "Peter Elmers",
     "license": "MIT",
     "devDependencies": {
+        "@babel/generator": "^7.20.4",
         "@turf/turf": "^6.5.0",
         "@types/mapbox-gl": "^2.7.5",
         "@types/react": "^18.0.20",
         "@types/react-dom": "^18.0.6",
         "gpxparser": "^3.0.8",
+        "makejs.art": "^1.0.2",
         "mapbox-gl": "^2.10.0",
         "prettier": "^2.7.1",
         "react": "^18.2.0",
@@ -28,6 +30,5 @@
         "webpack": "^5.74.0",
         "webpack-bundle-analyzer": "^4.6.1",
         "webpack-cli": "^4.10.0"
-    },
-    "dependencies": {}
+    }
 }

@@ -5,6 +5,8 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, 'src');
 const DESTINATION = path.resolve(__dirname, 'dist');
 
+const { MakeJsArtWebpackPlugin } = require('makejs.art');
+
 const clientConfig = {
     context: ROOT,
 
@@ -52,6 +54,10 @@ const clientConfig = {
     },
 
     plugins: [
+        new MakeJsArtWebpackPlugin({
+            imagePath: './static/logo.png',
+            cutoff: 0.32,
+        }),
         // Leave this uncommented to see a diagram of bundle space usage
         // it will open in the browser after build completes
         // new BundleAnalyzerPlugin(),
