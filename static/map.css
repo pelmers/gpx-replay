@@ -11,14 +11,29 @@
     height: 100%;
 }
 
+.heightgraph-container-container {
+    flex: 1;
+    min-height: 100px;
+    margin: auto;
+    max-width: 38em;
+}
+
+#heightgraph-container {
+    width: 100%;
+    min-height: 100px;
+    height: 100%;
+}
+
 /* progress styling https://css-tricks.com/some-innocent-fun-with-html-video-and-progress/ */
 
 .progress-container {
     align-items: center;
     display: grid;
-    grid-gap: 1rem;
+    grid-gap: 10px;
     grid-template-columns: 50px auto;
-    padding: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-right: 10px;
 }
 
 .play-button {
@@ -125,5 +140,14 @@ input[type='range'] {
 
 /* the sakura css makes this button too big so we will hide it */
 .mapboxgl-ctrl-attrib-button {
+    display: none;
+}
+
+/* the heightgraph is small so hide the legend and selection text to save space */
+#heightgraph-container .select-info {
+    display: none;
+}
+
+#heightgraph-container .legend-hover {
     display: none;
 }

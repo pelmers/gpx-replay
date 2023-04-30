@@ -7,10 +7,12 @@ const DESTINATION = path.resolve(__dirname, 'dist');
 
 const { MakeJsArtWebpackPlugin } = require('makejs.art');
 
+const mode = 'development';
+
 const clientConfig = {
     context: ROOT,
 
-    mode: process.env.BUILD_MODE || 'development',
+    mode,
     entry: {
         index: './index.tsx',
     },
@@ -50,15 +52,14 @@ const clientConfig = {
                 exclude: [/node_modules/],
                 use: 'ts-loader',
             },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
+            },
         ],
     },
 
     plugins: [
-        new MakeJsArtWebpackPlugin({
-            imagePath: './static/minilogo.jpg',
-            cutoff: 0.6,
-            invert: true,
-        }),
         // Leave this uncommented to see a diagram of bundle space usage
         // it will open in the browser after build completes
         // new BundleAnalyzerPlugin(),
@@ -67,5 +68,15 @@ const clientConfig = {
     devtool: 'cheap-module-source-map',
     devServer: {},
 };
+
+if (process.env.BUILD_MODE === 'dist') {
+    clientConfig.plugins.push(
+        new MakeJsArtWebpackPlugin({
+            imagePath: './static/minilogo.jpg',
+            cutoff: 0.6,
+            invert: true,
+        })
+    );
+}
 
 module.exports = [clientConfig];

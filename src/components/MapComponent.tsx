@@ -1,5 +1,5 @@
 import React from 'react';
-import { GpxInfo, LatLon } from '../types';
+import { GpxInfo, LatLonEle } from '../types';
 
 import { MAPBOX_API_KEY } from '../mapboxApiKey';
 import {
@@ -19,6 +19,10 @@ import * as turf from '@turf/turf';
 import RangeSliderComponent from './RangeSliderComponent';
 import LabelInputWithHelp from './LabelInputWithHelp';
 import CheckboxControlInputComponent from './CheckboxControlInputComponent';
+
+// @ts-ignore no types for heightgraph :(
+import { HeightGraph } from 'map.heightgraph/src/heightgraph';
+import 'map.heightgraph/src/heightgraph.css';
 
 // TODO: make this configurable?
 const FPS = 40;
@@ -57,6 +61,8 @@ type SetStateFunc = MapComponent['setState'];
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef = React.createRef<HTMLDivElement>();
     progressRef = React.createRef<HTMLProgressElement>();
+    // A very messy approach: the child heightgraph component gives us this function to put the heightgraph at a new position
+    applyPositionUpdateToHeightGraph: (position: number) => void;
 
     map: mapboxgl.Map;
     mapControl = new mapboxgl.NavigationControl();
@@ -282,9 +288,10 @@ export default class MapComponent extends React.Component<Props, State> {
         this.point.features[0].properties.bearing = bearing;
         (this.map.getSource('point') as mapboxgl.GeoJSONSource).setData(this.point);
 
-        // Update progress bar percentage based on this position
+        // Update progress bar percentage and elevation profile graph based on this position
         if (this.progressRef.current != null) {
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
+            this.applyPositionUpdateToHeightGraph(newPosition);
         }
 
         if (this.state.useFollowCam) {
@@ -399,7 +406,7 @@ export default class MapComponent extends React.Component<Props, State> {
                 container: this.mapDivRef.current!,
                 zoom: 16,
                 pitch: 0,
-                center: findCenter(gpsPoints),
+                center: findCenter(gpsPoints).slice(0, 2) as [number, number],
                 style: state.mapStyle,
                 accessToken: MAPBOX_API_KEY,
             });
@@ -412,7 +419,7 @@ export default class MapComponent extends React.Component<Props, State> {
         }
         const addSource = (
             id: string,
-            points: LatLon[],
+            points: LatLonEle[],
             params: mapboxgl.LinePaint
         ) => {
             this.map.addSource(id, pointsToGeoJsonFeature(points)).addLayer({
@@ -471,12 +478,17 @@ export default class MapComponent extends React.Component<Props, State> {
                 this.map.easeTo({
                     zoom: 14.5,
                     pitch: 60,
-                    center: toGeoJson(props.gpxInfo.points[Math.floor(this.playhead)]),
+                    center: toGeoJson(
+                        props.gpxInfo.points[Math.floor(this.playhead)]
+                    ).slice(0, 2) as [number, number],
                 });
             } else {
                 this.map.easeTo({
                     pitch: 0,
-                    center: findCenter(props.gpxInfo.points),
+                    center: findCenter(props.gpxInfo.points).slice(0, 2) as [
+                        number,
+                        number
+                    ],
                     animate: false,
                     bearing: 0,
                 });
@@ -519,7 +531,6 @@ export default class MapComponent extends React.Component<Props, State> {
     }
 
     render() {
-        // TODO bonus: elevation profile? (as the progress bar?)
         const mb = this.props.gpxInfo.sizeBytes / 1000000;
         return (
             <>
@@ -533,6 +544,12 @@ export default class MapComponent extends React.Component<Props, State> {
                 <div className="map-container-container">
                     <div id="map-container" ref={this.mapDivRef} />
                 </div>
+                <HeightGraphComponent
+                    {...this.props}
+                    applyPositionUpdate={(applyUpdate) =>
+                        (this.applyPositionUpdateToHeightGraph = applyUpdate)
+                    }
+                />
                 <MapComponentProgress
                     isPlaying={this.state.isPlaying}
                     onPlayClick={this.handlePlayClick}
@@ -545,6 +562,84 @@ export default class MapComponent extends React.Component<Props, State> {
                 />
             </>
         );
+    }
+}
+
+type HeightGraphComponentProps = {
+    gpxInfo: GpxInfo;
+    applyPositionUpdate: (sendUpdateToMe: (position: number) => void) => void;
+};
+
+class HeightGraphComponent extends React.Component<HeightGraphComponentProps> {
+    heightGraphDivRef = React.createRef<HTMLDivElement>();
+    heightGraph: any;
+
+    constructor(props: HeightGraphComponentProps) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div className="heightgraph-container-container">
+                <div id="heightgraph-container" ref={this.heightGraphDivRef} />
+            </div>
+        );
+    }
+
+    componentDidMount() {
+        const containerHeight = this.heightGraphDivRef.current!.clientHeight;
+        const containerWidth = this.heightGraphDivRef.current!.clientWidth;
+        const marginLeft = 60;
+        const marginRight = 10;
+        this.heightGraph = new HeightGraph(
+            this.heightGraphDivRef.current,
+            {
+                width: containerWidth,
+                height: containerHeight,
+                margins: {
+                    top: 3,
+                    bottom: 3,
+                    left: marginLeft,
+                    right: marginRight,
+                },
+                expandControls: false,
+            },
+            {
+                // placeholders, see example at https://github.com/boldtrn/Leaflet.Heightgraph/blob/no_leaflet/example/MaplibreHeightGraph.js
+                pointSelectedCallback: () => {},
+                areaSelectedCallback: () => {},
+                routeSegmentsSelectedCallback: () => {},
+            }
+        );
+        // Turn off the drag handler because I am cheating by using the drag selection to show the current position
+        this.heightGraph._dragStartHandler = () => {};
+        this.heightGraph._dragHandler = () => {};
+        this.heightGraph._mouseUpHandler = () => {};
+        this.heightGraph.setData([
+            {
+                type: 'FeatureCollection',
+                features: [
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: this.props.gpxInfo.points.map(toGeoJson),
+                        },
+                        properties: {
+                            attributeType: this.props.gpxInfo.name,
+                        },
+                    },
+                ],
+                properties: {
+                    label: this.props.gpxInfo.name,
+                },
+            },
+        ]);
+        this.props.applyPositionUpdate((position) => {
+            const xPosition =
+                (position / this.props.gpxInfo.points.length) * (containerWidth - marginLeft - marginRight);
+            this.heightGraph._drawDragRectangle(0, xPosition);
+        });
     }
 }
 
@@ -623,9 +718,9 @@ function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
 
                 <RangeSliderComponent
                     label={'Playback Rate'}
-                    min={0.2}
+                    min={0.1}
                     max={20}
-                    step={0.2}
+                    step={0.1}
                     value={state.playbackRate}
                     helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
                     onChange={(value) => setState({ playbackRate: value })}

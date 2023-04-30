@@ -108,3 +108,8 @@
     padding: 0 0 0 2ch;
     margin: 0;
 }
+
+.errorMessage {
+    color: red;
+    font-weight: bold;
+}

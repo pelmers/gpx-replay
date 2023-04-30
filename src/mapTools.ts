@@ -1,16 +1,18 @@
 import { Feature, Point } from '@turf/turf';
-import { LatLon } from './types';
+import { GeoJsonPoint, LatLonEle } from './types';
 
-export function toGeoJson(point: LatLon): [number, number] {
-    return [point.lon, point.lat];
+export function toGeoJson(point: LatLonEle): GeoJsonPoint {
+    return [point.lon, point.lat, point.ele];
 }
 
-export function pointsToGeoJsonFeature(points: LatLon[]) {
+export function pointsToGeoJsonFeature(points: LatLonEle[], label?: string) {
     return {
         type: 'geojson' as const,
         data: {
             type: 'Feature' as const,
-            properties: {},
+            properties: {
+                label,
+            },
             geometry: {
                 type: 'LineString' as const,
                 coordinates: points.map(toGeoJson),
@@ -19,12 +21,16 @@ export function pointsToGeoJsonFeature(points: LatLon[]) {
     };
 }
 
-export function geoJsonToPoint(pt: Feature<Point>): LatLon {
+export function geoJsonToPoint(pt: Feature<Point>): LatLonEle {
     const { coordinates } = pt.geometry;
-    return { lon: coordinates[0], lat: coordinates[1] };
+    return {
+        lon: coordinates[0],
+        lat: coordinates[1],
+        ele: coordinates.length > 2 ? coordinates[2] : 0,
+    };
 }
 
-export function toGeoJsonFeature(point: LatLon) {
+export function toGeoJsonFeature(point: LatLonEle) {
     return {
         type: 'Feature' as const,
         geometry: {
@@ -35,7 +41,7 @@ export function toGeoJsonFeature(point: LatLon) {
     };
 }
 
-export function toGeoJsonLineString(from: LatLon, to: LatLon) {
+export function toGeoJsonLineString(from: LatLonEle, to: LatLonEle) {
     return {
         type: 'Feature' as const,
         geometry: {
@@ -46,19 +52,20 @@ export function toGeoJsonLineString(from: LatLon, to: LatLon) {
     };
 }
 
-export function findCenter(gpsPoints: LatLon[]): [number, number] {
+export function findCenter(gpsPoints: LatLonEle[]): GeoJsonPoint {
     const n = gpsPoints.length;
     const avg = gpsPoints.reduce(
         (prev, cur) => ({
             lat: prev.lat + cur.lat / n,
             lon: prev.lon + cur.lon / n,
+            ele: prev.ele + cur.ele / n,
         }),
-        { lat: 0, lon: 0 }
+        { lat: 0, lon: 0, ele: 0 }
     );
     return toGeoJson(avg);
 }
 
-export function findBounds(gpsPoints: LatLon[]): mapboxgl.LngLatBoundsLike {
+export function findBounds(gpsPoints: LatLonEle[]): mapboxgl.LngLatBoundsLike {
     const [sw, ne] = gpsPoints.reduce(
         ([sw, ne], cur) => [
             {

@@ -2,6 +2,7 @@ import React from 'react';
 import { GpxInfo } from '../types';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
+import 'map.heightgraph/src/heightgraph.css';
 declare type Props = {
     gpxInfo: GpxInfo;
     bindKeys: boolean;
@@ -23,6 +24,7 @@ declare type State = {
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;
     progressRef: React.RefObject<HTMLProgressElement>;
+    applyPositionUpdateToHeightGraph: (position: number) => void;
     map: mapboxgl.Map;
     mapControl: mapboxgl.NavigationControl;
     fullscreenControl: mapboxgl.FullscreenControl;

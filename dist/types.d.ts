@@ -3,13 +3,15 @@ export declare type GpxInfo = {
     distance: {
         total: number;
     };
-    points: LatLon[];
+    points: LatLonEle[];
     sizeBytes: number;
 };
 declare type LatLonBase = {
     lat: number;
     lon: number;
 };
-export interface LatLon extends Required<LatLonBase> {
+export interface LatLonEle extends Required<LatLonBase> {
+    ele: number;
 }
+export declare type GeoJsonPoint = [number, number, number];
 export {};

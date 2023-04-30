@@ -3,7 +3,7 @@ export type GpxInfo = {
     distance: {
         total: number;
     };
-    points: LatLon[];
+    points: LatLonEle[];
     sizeBytes: number;
 };
 
@@ -12,5 +12,9 @@ type LatLonBase = {
     lon: number;
 };
 
-// Matches any type that has LatLonBase as a subset
-export interface LatLon extends Required<LatLonBase> {}
+// Matches any type that has LatLonBase as a subset, plus elevation
+export interface LatLonEle extends Required<LatLonBase> {
+    ele: number;
+}
+
+export type GeoJsonPoint = [number, number, number];

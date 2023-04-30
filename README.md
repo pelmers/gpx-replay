@@ -38,6 +38,6 @@ You should create a file `src/mapboxApiKey.ts` with the following contents:
 export const MAPBOX_API_KEY = 'YOUR KEY HERE';
 ```
 
-### Future Plans
+### New Features
 
--   None at the moment, feel free to open issues for feature requests
+-   Added elevation profile (via [boldtrn/Leaflet.Heightgraph](https://github.com/boldtrn/Leaflet.Heightgraph))
