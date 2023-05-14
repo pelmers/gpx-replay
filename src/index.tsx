@@ -1,6 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { MAPBOX_API_KEY } from './mapboxApiKey';
+
 import ErrorComponent from './components/ErrorComponent';
 import LoadGpxComponent from './components/LoadGpxComponent';
 import LoadingComponent from './components/LoadingComponent';
@@ -51,7 +53,7 @@ class App extends React.Component<{}, State> {
             );
         } else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
             return (
-                <this.state.mapComponent gpxInfo={this.state.gpxInfo} bindKeys={true} />
+                <this.state.mapComponent gpxInfo={this.state.gpxInfo} bindKeys={true} mapboxAccessToken={MAPBOX_API_KEY} />
             );
         } else {
             return <LoadGpxComponent onGpxLoad={this.onFileAdded} />;

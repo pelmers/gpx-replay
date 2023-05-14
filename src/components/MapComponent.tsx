@@ -1,7 +1,6 @@
 import React from 'react';
 import { GpxInfo, LatLonEle } from '../types';
 
-import { MAPBOX_API_KEY } from '../mapboxApiKey';
 import {
     bearingDiff,
     clamp,
@@ -35,6 +34,7 @@ const CAM_MOMENTUM_ROLLING_AVG_INTERVAL = Math.round(FPS * 2);
 type Props = {
     gpxInfo: GpxInfo;
     bindKeys: boolean;
+    mapboxAccessToken: string;
 };
 
 type State = {
@@ -408,7 +408,7 @@ export default class MapComponent extends React.Component<Props, State> {
                 pitch: 0,
                 center: findCenter(gpsPoints).slice(0, 2) as [number, number],
                 style: state.mapStyle,
-                accessToken: MAPBOX_API_KEY,
+                accessToken: this.props.mapboxAccessToken,
             });
             this.map.fitBounds(findBounds(gpsPoints));
             this.map.addControl(this.mapControl);
