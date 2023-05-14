@@ -639,7 +639,8 @@ class HeightGraphComponent extends React.Component<HeightGraphComponentProps> {
         ]);
         this.props.applyPositionUpdate((position) => {
             const xPosition =
-                (position / this.props.gpxInfo.points.length) * (containerWidth - marginLeft - marginRight);
+                (position / this.props.gpxInfo.points.length) *
+                (containerWidth - marginLeft - marginRight);
             this.heightGraph._drawDragRectangle(0, xPosition);
         });
     }

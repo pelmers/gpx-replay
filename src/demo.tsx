@@ -53,7 +53,11 @@ class App extends React.Component<{}, State> {
             );
         } else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
             return (
-                <this.state.mapComponent gpxInfo={this.state.gpxInfo} bindKeys={true} mapboxAccessToken={MAPBOX_API_KEY} />
+                <this.state.mapComponent
+                    gpxInfo={this.state.gpxInfo}
+                    bindKeys={true}
+                    mapboxAccessToken={MAPBOX_API_KEY}
+                />
             );
         } else {
             return <LoadGpxComponent onGpxLoad={this.onFileAdded} />;
