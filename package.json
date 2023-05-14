@@ -1,5 +1,5 @@
 {
-    "name": "gpx-replay",
+    "name": "gpx-replay-react",
     "version": "0.0.1",
     "description": "Replay GPX files on a map, completely in the client browser",
     "main": "dist/index.bundle.js",
