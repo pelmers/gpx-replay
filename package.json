@@ -2,7 +2,7 @@
     "name": "gpx-replay",
     "version": "0.0.1",
     "description": "Replay GPX files on a map, completely in the client browser",
-    "main": "src/server.ts",
+    "main": "dist/index.js",
     "scripts": {
         "build": "webpack --config webpack.config.js",
         "build-dist": "BUILD_MODE=dist webpack --config webpack.config.js",

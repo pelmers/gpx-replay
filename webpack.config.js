@@ -14,6 +14,7 @@ const clientConfig = {
 
     mode,
     entry: {
+        demo: './demo.tsx',
         index: './index.tsx',
     },
 

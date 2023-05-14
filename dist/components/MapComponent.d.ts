@@ -3,9 +3,11 @@ import { GpxInfo } from '../types';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import 'map.heightgraph/src/heightgraph.css';
+import '../../static/map.css';
 declare type Props = {
     gpxInfo: GpxInfo;
     bindKeys: boolean;
+    mapboxAccessToken: string;
 };
 declare type State = {
     useFollowCam: boolean;

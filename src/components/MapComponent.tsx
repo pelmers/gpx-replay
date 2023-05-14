@@ -23,6 +23,8 @@ import CheckboxControlInputComponent from './CheckboxControlInputComponent';
 import { HeightGraph } from 'map.heightgraph/src/heightgraph';
 import 'map.heightgraph/src/heightgraph.css';
 
+import '../../static/map.css';
+
 // TODO: make this configurable?
 const FPS = 40;
 // This value controls the size of the rolling window over which we find the camera momentum
