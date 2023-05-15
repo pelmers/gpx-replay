@@ -25,18 +25,21 @@ import 'map.heightgraph/src/heightgraph.css';
 
 import '../../static/map.css';
 
-// TODO: make this configurable?
-const FPS = 40;
-// This value controls the size of the rolling window over which we find the camera momentum
-// In follow cam, new momentum vector = avg(last len(rolling avg window) camera vectors)
-// Higher values smooth out the movement more, lower makes it more reactive
-// Beware that setting it too low may cause camera to overshoot and oscillate
-const CAM_MOMENTUM_ROLLING_AVG_INTERVAL = Math.round(FPS * 2);
-
 type Props = {
     gpxInfo: GpxInfo;
+    // We bind f to full screen, space to play/pause, h to hide controls if enabled
     bindKeys: boolean;
+    // Whether or not to show the elevation profile
+    showElevationProfile: boolean;
     mapboxAccessToken: string;
+    // Maximum number of times per second to update the position
+    // Note that if positionUpdateFunctionRef is set, this is ignored!
+    playbackFPS: number;
+    // If positionUpdateFunctionRef is set, then the default playback controls will be disabled.
+    // Position is a number in the range [0, # points - 1], deltaS is number in seconds since last update
+    positionUpdateFunctionRef?: React.MutableRefObject<
+        (position: number, deltaS: number) => void
+    >;
 };
 
 type State = {
@@ -56,6 +59,11 @@ type State = {
     gpxTrackColor: string;
     pointIcon: string;
     pointIconSize: number;
+    // This value controls the size of the rolling window over which we find the camera momentum
+    // In follow cam, new momentum vector = avg(last len(rolling avg window) camera vectors)
+    // Higher values smooth out the movement more, lower makes it more reactive
+    // Beware that setting it too low may cause camera to overshoot and oscillate
+    camMomentumRollingAvgInterval: number;
 };
 
 type SetStateFunc = MapComponent['setState'];
@@ -67,7 +75,7 @@ export default class MapComponent extends React.Component<Props, State> {
     applyPositionUpdateToHeightGraph: (position: number) => void;
 
     map: mapboxgl.Map;
-    mapControl = new mapboxgl.NavigationControl();
+    mapControl = new mapboxgl.NavigationControl({ visualizePitch: true });
     fullscreenControl = new mapboxgl.FullscreenControl();
     // where is the bike along the track? can be fractional, in the range [0, # points]
     // TODO: can i put this number in the state?
@@ -101,6 +109,7 @@ export default class MapComponent extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
+            camMomentumRollingAvgInterval: Math.round(this.props.playbackFPS * 2),
             useFollowCam: false,
             followSensitivity: 45,
             followMomentum: 0,
@@ -139,8 +148,8 @@ export default class MapComponent extends React.Component<Props, State> {
             this.lastAnimationTime = t;
             return;
         }
-        // cap at 40 fps
-        const minAnimationTime = 1000 / FPS;
+        // cap at given fps
+        const minAnimationTime = 1000 / this.props.playbackFPS;
         if (t - this.lastAnimationTime > minAnimationTime) {
             this.animationBody(t - this.lastAnimationTime);
             this.lastAnimationTime = t;
@@ -167,7 +176,6 @@ export default class MapComponent extends React.Component<Props, State> {
         if (newPosition === points.length - 1) {
             this.setState({ isPlaying: false });
         }
-        this.playhead = newPosition;
     }
 
     /**
@@ -210,13 +218,18 @@ export default class MapComponent extends React.Component<Props, State> {
         let newCenter = pointPos;
         const { momentumVec, lastCenter, lastVecs } = this.lastFollowcamMoveVector;
         const { playbackRate } = this.state;
-        if (this.state.isPlaying && momentumVec == null && lastCenter != null) {
+        // To allow the momentum feature to work when we receive position updates from outside,
+        // assume that we are playing if we have a position update function.
+        // Then the momentum reset is handled by the 2 second heuristic.
+        const isPlaying =
+            this.state.isPlaying || this.props.positionUpdateFunctionRef != null;
+        if (isPlaying && momentumVec == null && lastCenter != null) {
             // We are playing but we have not recorded a last camera move (so this is first frame)
             this.lastFollowcamMoveVector.momentumVec = [
                 (pointPos[0] - lastCenter[0]) / playbackRate,
                 (pointPos[1] - lastCenter[1]) / playbackRate,
             ];
-        } else if (this.state.isPlaying && momentumVec != null && lastCenter != null) {
+        } else if (isPlaying && momentumVec != null && lastCenter != null) {
             // We are playing and we know a last movement vector
             const baseMoveVector = [
                 pointPos[0] - lastCenter[0],
@@ -240,15 +253,15 @@ export default class MapComponent extends React.Component<Props, State> {
                 newMoveVector[1] / playbackRate,
             ]);
             // If we exceed our rolling average threshold, remove the first one and update the momentum vector
-            if (lastVecs.length > CAM_MOMENTUM_ROLLING_AVG_INTERVAL) {
+            if (lastVecs.length > this.state.camMomentumRollingAvgInterval) {
                 lastVecs.shift();
                 const sum = lastVecs.reduce(
                     (acc, cur) => [acc[0] + cur[0], acc[1] + cur[1]],
                     [0, 0]
                 );
                 this.lastFollowcamMoveVector.momentumVec = [
-                    sum[0] / CAM_MOMENTUM_ROLLING_AVG_INTERVAL,
-                    sum[1] / CAM_MOMENTUM_ROLLING_AVG_INTERVAL,
+                    sum[0] / this.state.camMomentumRollingAvgInterval,
+                    sum[1] / this.state.camMomentumRollingAvgInterval,
                 ];
             }
         }
@@ -275,6 +288,7 @@ export default class MapComponent extends React.Component<Props, State> {
      * @param timeDeltaS how long the camera move should take, in seconds
      */
     updatePointPosition(newPosition: number, timeDeltaS: number) {
+        this.playhead = newPosition;
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(newPosition);
         if (pointIndex === points.length - 1) {
@@ -293,6 +307,8 @@ export default class MapComponent extends React.Component<Props, State> {
         // Update progress bar percentage and elevation profile graph based on this position
         if (this.progressRef.current != null) {
             this.progressRef.current.value = (100 * newPosition) / (points.length - 1);
+        }
+        if (this.applyPositionUpdateToHeightGraph != null) {
             this.applyPositionUpdateToHeightGraph(newPosition);
         }
 
@@ -377,6 +393,18 @@ export default class MapComponent extends React.Component<Props, State> {
         if (this.props.bindKeys) {
             window.addEventListener('keydown', this.windowKeyBinds, true);
         }
+        if (this.props.positionUpdateFunctionRef) {
+            this.props.positionUpdateFunctionRef.current = (
+                position: number,
+                deltaS: number
+            ) => {
+                if (deltaS > 2) {
+                    // heuristic: if the delta is greater than 2 seconds, it might be paused
+                    this.resetFollowCamMomemtum();
+                }
+                this.updatePointPosition(position, deltaS);
+            };
+        }
     }
 
     handlePlayClick = () => {
@@ -395,7 +423,6 @@ export default class MapComponent extends React.Component<Props, State> {
         const newPosition = this.props.gpxInfo.points.length * offsetFraction;
         this.resetFollowCamMomemtum();
         this.updatePointPosition(newPosition, 0);
-        this.playhead = newPosition;
     };
 
     async createMapFromState(state: State) {
@@ -464,7 +491,9 @@ export default class MapComponent extends React.Component<Props, State> {
                 resolve();
             });
         });
-        requestAnimationFrame(this.animationLoop);
+        if (!this.props.positionUpdateFunctionRef) {
+            requestAnimationFrame(this.animationLoop);
+        }
     }
 
     async componentWillUpdate(props: Props, nextState: State) {
@@ -539,28 +568,37 @@ export default class MapComponent extends React.Component<Props, State> {
                 <div className="center gpx-info">
                     Selected: <b>{this.props.gpxInfo.name}</b> ({mb.toFixed(2)} MB)
                 </div>
-                <div className="center">
-                    <b>Tip:</b> use space to play/pause, F to full screen, H to hide
-                    controls
-                </div>
+                {this.props.bindKeys && (
+                    <div className="center">
+                        <b>Tip:</b> use space to play/pause, F to full screen, H to hide
+                        controls
+                    </div>
+                )}
                 <div className="map-container-container">
                     <div id="map-container" ref={this.mapDivRef} />
                 </div>
-                <HeightGraphComponent
-                    {...this.props}
-                    applyPositionUpdate={(applyUpdate) =>
-                        (this.applyPositionUpdateToHeightGraph = applyUpdate)
-                    }
-                />
-                <MapComponentProgress
-                    isPlaying={this.state.isPlaying}
-                    onPlayClick={this.handlePlayClick}
-                    onProgressClick={this.handleProgressClick}
-                    progressRef={this.progressRef}
-                />
+                {this.props.showElevationProfile && (
+                    <HeightGraphComponent
+                        {...this.props}
+                        applyPositionUpdate={(applyUpdate) =>
+                            (this.applyPositionUpdateToHeightGraph = applyUpdate)
+                        }
+                    />
+                )}
+                {!this.props.positionUpdateFunctionRef && (
+                    <MapComponentProgress
+                        isPlaying={this.state.isPlaying}
+                        onPlayClick={this.handlePlayClick}
+                        onProgressClick={this.handleProgressClick}
+                        progressRef={this.progressRef}
+                    />
+                )}
                 <MapComponentOptions
                     state={this.state}
                     setState={this.setState.bind(this)}
+                    showPlaybackRate={
+                        this.props.positionUpdateFunctionRef === undefined
+                    }
                 />
             </>
         );
@@ -629,6 +667,7 @@ class HeightGraphComponent extends React.Component<HeightGraphComponentProps> {
                         },
                         properties: {
                             attributeType: this.props.gpxInfo.name,
+                            summary: 'Elevation',
                         },
                     },
                 ],
@@ -677,8 +716,12 @@ function MapComponentProgress(props: {
     );
 }
 
-function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
-    const { state, setState } = props;
+function MapComponentOptions(props: {
+    state: State;
+    setState: SetStateFunc;
+    showPlaybackRate: boolean;
+}) {
+    const { state, setState, showPlaybackRate } = props;
     return (
         <>
             <div className="center control-group">
@@ -719,15 +762,17 @@ function MapComponentOptions(props: { state: State; setState: SetStateFunc }) {
                     />
                 )}
 
-                <RangeSliderComponent
-                    label={'Playback Rate'}
-                    min={0.1}
-                    max={20}
-                    step={0.1}
-                    value={state.playbackRate}
-                    helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
-                    onChange={(value) => setState({ playbackRate: value })}
-                />
+                {showPlaybackRate && (
+                    <RangeSliderComponent
+                        label={'Playback Rate'}
+                        min={0.1}
+                        max={20}
+                        step={0.1}
+                        value={state.playbackRate}
+                        helpText="Multiplier for playback speed. Default playback speed is tuned so it finishes in exactly 60 seconds (regardless GPX track length)."
+                        onChange={(value) => setState({ playbackRate: value })}
+                    />
+                )}
             </div>
             <div className="center control-group">
                 {/* styles from https://docs.mapbox.com/api/maps/styles/ */}

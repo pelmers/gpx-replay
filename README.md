@@ -25,19 +25,37 @@ to my [Eurovelo 6 video guide](https://www.youtube.com/watch?v=g8bpJm3dWoo).
 
 ![Map Examples](res/gpx_examples.jpg)
 
-### Usage
+### Usage as Library
 
 ```
-yarn
-yarn build
+yarn add gpx-replay-react
 ```
 
-You should create a file `src/mapboxApiKey.ts` with the following contents:
+```
+import { MapComponent } from 'gpx-replay-react';
 
-```ts
-export const MAPBOX_API_KEY = 'YOUR KEY HERE';
+<MapComponent
+    playbackFPS={30}
+    bindKeys={false}
+    mapboxAccessToken={token}
+    gpxInfo={{
+        name: key,
+        distance: {
+            total: metadata.distance,
+        },
+        points: metadata.gpsPoints.map((p) => ({
+            lat: p.lat,
+            lon: p.lng,
+            ele: 0,
+        })),
+        sizeBytes: 0,
+    }}
+    positionUpdateFunctionRef={positionUpdateRef}
+    showElevationProfile={showElevationProfile}
+/>
 ```
 
 ### New Features
 
 -   Added elevation profile (via [boldtrn/Leaflet.Heightgraph](https://github.com/boldtrn/Leaflet.Heightgraph))
+-   Published to npm as [`gpx-replay-react`](https://www.npmjs.com/package/gpx-replay-react)

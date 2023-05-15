@@ -8,6 +8,8 @@ import LoadGpxComponent from './components/LoadGpxComponent';
 import LoadingComponent from './components/LoadingComponent';
 import { GpxInfo } from './types';
 
+import '../static/map.css';
+
 type State = {
     gpxInfo?: GpxInfo;
     gpxError?: string;
@@ -57,6 +59,8 @@ class App extends React.Component<{}, State> {
                     gpxInfo={this.state.gpxInfo}
                     bindKeys={true}
                     mapboxAccessToken={MAPBOX_API_KEY}
+                    playbackFPS={40}
+                    showElevationProfile
                 />
             );
         } else {

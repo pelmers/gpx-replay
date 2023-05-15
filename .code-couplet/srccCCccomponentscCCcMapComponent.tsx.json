@@ -4,27 +4,27 @@
         {
             "commentRange": {
                 "start": {
-                    "line": 141,
-                    "char": 18
+                    "line": 222,
+                    "char": 53
                 },
                 "end": {
-                    "line": 141,
-                    "char": 24
+                    "line": 222,
+                    "char": 71
                 }
             },
             "codeRange": {
                 "start": {
-                    "line": 28,
-                    "char": 0
+                    "line": 400,
+                    "char": 1
                 },
                 "end": {
-                    "line": 28,
-                    "char": 15
+                    "line": 402,
+                    "char": 0
                 }
             },
             "codeRelativePath": "",
-            "commentValue": "40 fps",
-            "codeValue": "const FPS = 40;",
+            "commentValue": "2 second heuristic",
+            "codeValue": "               if (deltaS > 2) {\n                    // heuristic: if the delta is greater than 2 seconds, it might be paused\n",
             "id": 0
         }
     ],

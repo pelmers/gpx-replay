@@ -75,6 +75,12 @@ export default function parseGpxFile(
                 0
             ),
     };
+    // If any point does not have ele key, then add ele: 0
+    for (const point of points) {
+        if (point.ele == null) {
+            point.ele = 0;
+        }
+    }
     return {
         distance,
         points,

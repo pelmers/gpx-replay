@@ -151,3 +151,26 @@ input[type='range'] {
 #heightgraph-container .legend-hover {
     display: none;
 }
+
+.labelInputWithHelp {
+    cursor: pointer;
+}
+
+.labelInputWithHelp:hover {
+    text-decoration: underline 3px #3b22ea;
+}
+
+.labelInputWithHelp::after {
+    content: ' [?]';
+    font-weight: bolder;
+}
+
+.helpText {
+    padding: 0 0 0 2ch;
+    margin: 0;
+}
+
+.center {
+    margin: auto;
+    max-width: 38em;
+}

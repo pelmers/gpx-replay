@@ -1,8 +1,8 @@
 {
     "name": "gpx-replay-react",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Replay GPX files on a map, completely in the client browser",
-    "main": "dist/index.bundle.js",
+    "main": "dist/index.js",
     "scripts": {
         "build": "webpack --config webpack.config.js",
         "build-dist": "BUILD_MODE=dist webpack --config webpack.config.js",
@@ -34,5 +34,9 @@
         "webpack": "^5.74.0",
         "webpack-bundle-analyzer": "^4.6.1",
         "webpack-cli": "^4.10.0"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     }
 }
