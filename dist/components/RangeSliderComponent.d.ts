@@ -1,5 +1,5 @@
 import React from 'react';
-declare type Props = {
+type Props = {
     label: string;
     min: number;
     max: number;

@@ -1,4 +1,4 @@
-export declare type GpxInfo = {
+export type GpxInfo = {
     name: string;
     distance: {
         total: number;
@@ -6,12 +6,12 @@ export declare type GpxInfo = {
     points: LatLonEle[];
     sizeBytes: number;
 };
-declare type LatLonBase = {
+type LatLonBase = {
     lat: number;
     lon: number;
 };
 export interface LatLonEle extends Required<LatLonBase> {
     ele: number;
 }
-export declare type GeoJsonPoint = [number, number, number];
+export type GeoJsonPoint = [number, number, number];
 export {};

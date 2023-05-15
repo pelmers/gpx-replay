@@ -1,5 +1,5 @@
 /// <reference types="react" />
-declare type Props = {
+type Props = {
     labelText: string;
     defaultChecked: boolean;
     helpText: string;

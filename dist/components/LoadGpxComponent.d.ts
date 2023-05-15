@@ -1,8 +1,8 @@
 import React from 'react';
-declare type Props = {
+type Props = {
     onGpxLoad: (gpxFile: File, smoothingFactor: number, joinTracks: boolean) => unknown;
 };
-declare type State = {
+type State = {
     smoothingFactor: number;
     joinTracks: boolean;
 };

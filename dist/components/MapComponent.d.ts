@@ -4,12 +4,15 @@ import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import 'map.heightgraph/src/heightgraph.css';
 import '../../static/map.css';
-declare type Props = {
+type Props = {
     gpxInfo: GpxInfo;
     bindKeys: boolean;
+    showElevationProfile: boolean;
     mapboxAccessToken: string;
+    playbackFPS: number;
+    positionUpdateFunctionRef?: React.MutableRefObject<(position: number, deltaS: number) => void>;
 };
-declare type State = {
+type State = {
     useFollowCam: boolean;
     followSensitivity: number;
     followMomentum: number;
@@ -22,6 +25,7 @@ declare type State = {
     gpxTrackColor: string;
     pointIcon: string;
     pointIconSize: number;
+    camMomentumRollingAvgInterval: number;
 };
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;

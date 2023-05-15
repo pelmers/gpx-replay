@@ -3,12 +3,12 @@
  * a help span is shown.
  */
 import React from 'react';
-declare type Props = {
+type Props = {
     label: JSX.Element;
     input: JSX.Element;
     helpText: string | JSX.Element;
 };
-declare type State = {
+type State = {
     expanded: boolean;
 };
 export default class LabelInputWithHelp extends React.Component<Props, State> {
