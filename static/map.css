@@ -13,14 +13,14 @@
 
 .heightgraph-container-container {
     flex: 1;
-    min-height: 120px;
+    min-height: 110px;
     margin: auto;
     max-width: 38em;
 }
 
 #heightgraph-container {
     width: 100%;
-    min-height: 120px;
+    min-height: 110px;
     height: 100%;
 }
 

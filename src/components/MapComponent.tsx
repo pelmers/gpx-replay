@@ -638,7 +638,7 @@ class HeightGraphComponent extends React.Component<HeightGraphComponentProps> {
                 height: containerHeight,
                 margins: {
                     top: 3,
-                    bottom: 3,
+                    bottom: 20,
                     left: marginLeft,
                     right: marginRight,
                 },
