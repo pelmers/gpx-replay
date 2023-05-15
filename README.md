@@ -36,22 +36,17 @@ import { MapComponent } from 'gpx-replay-react';
 
 <MapComponent
     playbackFPS={30}
-    bindKeys={false}
-    mapboxAccessToken={token}
+    mapboxAccessToken={mapBoxAccessToken}
     gpxInfo={{
-        name: key,
+        name,
         distance: {
-            total: metadata.distance,
+            total: totalDistance,
         },
-        points: metadata.gpsPoints.map((p) => ({
-            lat: p.lat,
-            lon: p.lng,
-            ele: 0,
-        })),
-        sizeBytes: 0,
+        points: [{lat: 10, lon: 10, ele: 0}, ...],
+        sizeBytes: 1000,
     }}
-    positionUpdateFunctionRef={positionUpdateRef}
-    showElevationProfile={showElevationProfile}
+    bindKeys
+    showElevationProfile
 />
 ```
 
