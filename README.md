@@ -28,7 +28,7 @@ to my [Eurovelo 6 video guide](https://www.youtube.com/watch?v=g8bpJm3dWoo).
 ### Usage as Library
 
 ```
-yarn add gpx-replay-react
+$ yarn add gpx-replay-react
 ```
 
 ```
