@@ -11,6 +11,8 @@ type Props = {
     mapboxAccessToken: string;
     playbackFPS: number;
     positionUpdateFunctionRef?: React.MutableRefObject<(position: number, deltaS: number) => void>;
+    initialState?: Partial<State>;
+    disableOptions?: boolean;
 };
 type State = {
     useFollowCam: boolean;

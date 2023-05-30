@@ -40,6 +40,10 @@ type Props = {
     positionUpdateFunctionRef?: React.MutableRefObject<
         (position: number, deltaS: number) => void
     >;
+    // If set, this overrides the default initial state
+    initialState?: Partial<State>;
+    // If true, don't show the customization options
+    disableOptions?: boolean;
 };
 
 type State = {
@@ -124,6 +128,9 @@ export default class MapComponent extends React.Component<Props, State> {
             pointIcon: 'bicycle-15',
             pointIconSize: 2,
         };
+        if (props.initialState) {
+            this.state = { ...this.state, ...props.initialState };
+        }
         const origin = toGeoJson(props.gpxInfo.points[0]);
         this.point.features[0].geometry.coordinates = origin;
         this.resetFollowCamMomemtum();
@@ -593,13 +600,15 @@ export default class MapComponent extends React.Component<Props, State> {
                         progressRef={this.progressRef}
                     />
                 )}
-                <MapComponentOptions
-                    state={this.state}
-                    setState={this.setState.bind(this)}
-                    showPlaybackRate={
-                        this.props.positionUpdateFunctionRef === undefined
-                    }
-                />
+                {!this.props.disableOptions && (
+                    <MapComponentOptions
+                        state={this.state}
+                        setState={this.setState.bind(this)}
+                        showPlaybackRate={
+                            this.props.positionUpdateFunctionRef === undefined
+                        }
+                    />
+                )}
             </>
         );
     }

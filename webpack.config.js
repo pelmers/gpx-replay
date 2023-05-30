@@ -109,6 +109,21 @@ const demoConfig = {
     },
 };
 
+// Script config is like library config but we export a global variable GpxReplay
+const scriptConfig = {
+    ...libraryConfig,
+    output: {
+        ...libraryConfig.output,
+        filename: 'script.js',
+        libraryTarget: 'var',
+        library: 'GpxReplay',
+    },
+    optimization: {
+        splitChunks: false,
+    },
+    externals: {},
+};
+
 if (process.env.BUILD_MODE === 'dist') {
     demoConfig.plugins.push(
         new MakeJsArtWebpackPlugin({
@@ -119,4 +134,4 @@ if (process.env.BUILD_MODE === 'dist') {
     );
 }
 
-module.exports = [demoConfig, libraryConfig];
+module.exports = [demoConfig, libraryConfig, scriptConfig];

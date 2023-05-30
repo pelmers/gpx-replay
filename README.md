@@ -54,3 +54,9 @@ import { MapComponent } from 'gpx-replay-react';
 
 -   Added elevation profile (via [boldtrn/Leaflet.Heightgraph](https://github.com/boldtrn/Leaflet.Heightgraph))
 -   Published to npm as [`gpx-replay-react`](https://www.npmjs.com/package/gpx-replay-react)
+
+**0.04**
+
+-   Added `initialState` prop to MapComponent
+-   Added `disableSettings` prop to MapComponent
+-   Added packaging for script version of library, which exports global `GpxReplay.MapComponent`. Include via `<script src="https://unpkg.com/gpx-replay-react@0.04/dist/script.js">`
