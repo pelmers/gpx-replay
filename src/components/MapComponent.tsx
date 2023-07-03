@@ -52,6 +52,7 @@ type State = {
     followMomentum: number;
     useFollowTrack: boolean;
     mapStyle: string;
+    showTopo: boolean;
     // pointsPerSecond is a fixed value that means the number of points each frame
     // should advance so the entire route takes 1 minute to finish. Can be a fractional.
     pointsPerSecond: number;
@@ -119,6 +120,7 @@ export default class MapComponent extends React.Component<Props, State> {
             followMomentum: 0,
             useFollowTrack: false,
             mapStyle: 'mapbox://styles/mapbox/outdoors-v11',
+            showTopo: false,
             // divide by 60 seconds per minute
             pointsPerSecond: props.gpxInfo.points.length / 60,
             isPlaying: false,
@@ -480,7 +482,16 @@ export default class MapComponent extends React.Component<Props, State> {
                     type: 'geojson',
                     data: this.point,
                 });
-
+                // Example from mapbox-gl docs
+                this.map.addSource('mapbox-dem', {
+                    type: 'raster-dem',
+                    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                    tileSize: 512,
+                    maxzoom: 14,
+                });
+                if (this.state.showTopo) {
+                    this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 2 });
+                }
                 this.map.addLayer({
                     id: 'point',
                     source: 'point',
@@ -565,6 +576,13 @@ export default class MapComponent extends React.Component<Props, State> {
                 'line-width',
                 nextState.gpxTrackWidth
             );
+        }
+        if (nextState.showTopo !== this.state.showTopo) {
+            if (nextState.showTopo) {
+                this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 2 });
+            } else {
+                this.map.setTerrain(null);
+            }
         }
     }
 
@@ -820,6 +838,13 @@ function MapComponentOptions(props: {
                         Peter Custom Satellite
                     </option>
                 </select>
+
+                <CheckboxControlInputComponent
+                    labelText="3D Topography"
+                    defaultChecked={state.showTopo}
+                    helpText="When checked, an extra layer of topographic terrain is added to the map to emphasize elevation. This is more visible in FollowCam."
+                    onChange={(checked) => setState({ showTopo: checked })}
+                />
 
                 {/* List available at https://github.com/mapbox/mapbox-gl-styles#standard-icons  */}
                 <LabelInputWithHelp

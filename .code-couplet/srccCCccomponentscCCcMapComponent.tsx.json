@@ -1,34 +1,34 @@
 {
-  "version": 1,
-  "comments": [
-    {
-      "commentRange": {
-        "start": {
-          "line": 229,
-          "char": 53
-        },
-        "end": {
-          "line": 229,
-          "char": 71
+    "version": 1,
+    "comments": [
+        {
+            "commentRange": {
+                "start": {
+                    "line": 231,
+                    "char": 53
+                },
+                "end": {
+                    "line": 231,
+                    "char": 71
+                }
+            },
+            "codeRange": {
+                "start": {
+                    "line": 409,
+                    "char": 1
+                },
+                "end": {
+                    "line": 411,
+                    "char": 0
+                }
+            },
+            "codeRelativePath": "",
+            "commentValue": "2 second heuristic",
+            "codeValue": "               if (deltaS > 2) {\n                    // heuristic: if the delta is greater than 2 seconds, it might be paused\n",
+            "id": 0
         }
-      },
-      "codeRange": {
-        "start": {
-          "line": 407,
-          "char": 1
-        },
-        "end": {
-          "line": 409,
-          "char": 0
-        }
-      },
-      "codeRelativePath": "",
-      "commentValue": "2 second heuristic",
-      "codeValue": "               if (deltaS > 2) {\n                    // heuristic: if the delta is greater than 2 seconds, it might be paused\n",
-      "id": 0
+    ],
+    "configuration": {
+        "lineComment": null
     }
-  ],
-  "configuration": {
-    "lineComment": null
-  }
 }

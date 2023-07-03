@@ -85,7 +85,7 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
                     <RangeSliderComponent
                         label="GPS Smoothing"
                         min={0.0}
-                        max={150}
+                        max={100}
                         step={0.1}
                         value={this.state.smoothingFactor}
                         helpText={gpsSmoothingHelpEssay}

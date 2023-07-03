@@ -20,6 +20,7 @@ type State = {
     followMomentum: number;
     useFollowTrack: boolean;
     mapStyle: string;
+    showTopo: boolean;
     pointsPerSecond: number;
     isPlaying: boolean;
     playbackRate: number;
