@@ -1,13 +1,13 @@
 {
     "name": "gpx-replay-react",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Replay GPX files on a map, completely in the client browser",
     "main": "dist/index.js",
     "scripts": {
         "build": "webpack --config webpack.config.js",
         "build-dist": "BUILD_MODE=dist webpack --config webpack.config.js",
         "watch": "webpack --config webpack.config.js --watch",
-        "format": "node_modules/.bin/prettier --ignore-path .gitignore --write '.' '!**/vendor/**/*' '!dist/**/*'"
+        "format": "node_modules/.bin/prettier --ignore-path .gitignore --write '.' '!**/vendor/**/*' '!dist/**/*' '!.code-couplet/**/*'"
     },
     "author": "Peter Elmers",
     "license": "MIT",

@@ -837,6 +837,9 @@ function MapComponentOptions(props: {
                     <option value="mapbox://styles/pelmers/cl8ilg939000u15o5hxcr1mjy">
                         Peter Custom Satellite
                     </option>
+                    <option value="mapbox://styles/pelmers/cljn0kxxr00ct01qwgdcgblzs">
+                        peter.travel
+                    </option>
                 </select>
 
                 <CheckboxControlInputComponent
