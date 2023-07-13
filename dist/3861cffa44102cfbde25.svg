@@ -1,0 +1,17 @@
+var _path;
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+import * as React from "react";
+import { forwardRef } from "react";
+var SvgAreaChart = function SvgAreaChart(props, ref) {
+  return /*#__PURE__*/React.createElement("svg", _extends({
+    width: 1792,
+    height: 1792,
+    viewBox: "0 0 1792 1792",
+    xmlns: "http://www.w3.org/2000/svg",
+    ref: ref
+  }, props), _path || (_path = /*#__PURE__*/React.createElement("path", {
+    d: "M1920 1536v128h-2048v-1536h128v1408h1920zm-384-1024l256 896h-1664v-576l448-576 576 576z"
+  })));
+};
+var ForwardRef = /*#__PURE__*/forwardRef(SvgAreaChart);
+export default ForwardRef;

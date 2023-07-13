@@ -19,11 +19,9 @@ import RangeSliderComponent from './RangeSliderComponent';
 import LabelInputWithHelp from './LabelInputWithHelp';
 import CheckboxControlInputComponent from './CheckboxControlInputComponent';
 
-// @ts-ignore no types for heightgraph :(
-import { HeightGraph } from 'map.heightgraph/src/heightgraph';
-import 'map.heightgraph/src/heightgraph.css';
-
 import '../../static/map.css';
+import { HeightGraphComponent } from './HeightGraphComponent';
+import { MapComponentProgress } from './MapComponentProgress';
 
 type Props = {
     gpxInfo: GpxInfo;
@@ -300,14 +298,13 @@ export default class MapComponent extends React.Component<Props, State> {
         this.playhead = newPosition;
         const { points } = this.props.gpxInfo;
         const pointIndex = Math.floor(newPosition);
-        if (pointIndex === points.length - 1) {
+        if (pointIndex >= points.length - 1) {
             this.point.features[0] = toGeoJsonFeature(points[pointIndex]);
             return;
         }
 
         const { point, bearing } = this.interpolatePoint(newPosition);
 
-        // TODO: fix a bit of stuttering issue (noticeable in followcam)
         // @ts-ignore it's okay this is fine
         this.point.features[0] = point;
         this.point.features[0].properties.bearing = bearing;
@@ -630,117 +627,6 @@ export default class MapComponent extends React.Component<Props, State> {
             </>
         );
     }
-}
-
-type HeightGraphComponentProps = {
-    gpxInfo: GpxInfo;
-    applyPositionUpdate: (sendUpdateToMe: (position: number) => void) => void;
-};
-
-class HeightGraphComponent extends React.Component<HeightGraphComponentProps> {
-    heightGraphDivRef = React.createRef<HTMLDivElement>();
-    heightGraph: any;
-
-    constructor(props: HeightGraphComponentProps) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <div className="heightgraph-container-container">
-                <div id="heightgraph-container" ref={this.heightGraphDivRef} />
-            </div>
-        );
-    }
-
-    componentDidMount() {
-        const containerHeight = this.heightGraphDivRef.current!.clientHeight;
-        const containerWidth = this.heightGraphDivRef.current!.clientWidth;
-        const marginLeft = 60;
-        const marginRight = 10;
-        this.heightGraph = new HeightGraph(
-            this.heightGraphDivRef.current,
-            {
-                width: containerWidth,
-                height: containerHeight,
-                margins: {
-                    top: 3,
-                    bottom: 20,
-                    left: marginLeft,
-                    right: marginRight,
-                },
-                expandControls: false,
-            },
-            {
-                // placeholders, see example at https://github.com/boldtrn/Leaflet.Heightgraph/blob/no_leaflet/example/MaplibreHeightGraph.js
-                pointSelectedCallback: () => {},
-                areaSelectedCallback: () => {},
-                routeSegmentsSelectedCallback: () => {},
-            }
-        );
-        // Turn off the drag handler because I am cheating by using the drag selection to show the current position
-        this.heightGraph._dragStartHandler = () => {};
-        this.heightGraph._dragHandler = () => {};
-        this.heightGraph._mouseUpHandler = () => {};
-        this.heightGraph.setData([
-            {
-                type: 'FeatureCollection',
-                features: [
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: this.props.gpxInfo.points.map(toGeoJson),
-                        },
-                        properties: {
-                            attributeType: this.props.gpxInfo.name,
-                            summary: 'Elevation',
-                        },
-                    },
-                ],
-                properties: {
-                    label: this.props.gpxInfo.name,
-                },
-            },
-        ]);
-        this.props.applyPositionUpdate((position) => {
-            const xPosition =
-                (position / this.props.gpxInfo.points.length) *
-                (containerWidth - marginLeft - marginRight);
-            this.heightGraph._drawDragRectangle(0, xPosition);
-        });
-    }
-}
-
-function MapComponentProgress(props: {
-    onPlayClick: React.MouseEventHandler;
-    onProgressClick: React.MouseEventHandler;
-    isPlaying: boolean;
-    progressRef: React.Ref<HTMLProgressElement>;
-}) {
-    return (
-        <div className="center">
-            <div className="progress-container">
-                <button
-                    aria-label="Play"
-                    role="button"
-                    className="play-button"
-                    onClick={props.onPlayClick}
-                >
-                    {props.isPlaying ? '❚❚' : '►'}
-                </button>
-                <progress
-                    max="100"
-                    value="0"
-                    className="play-progress"
-                    ref={props.progressRef}
-                    onClick={props.onProgressClick}
-                >
-                    Progress
-                </progress>
-            </div>
-        </div>
-    );
 }
 
 function MapComponentOptions(props: {

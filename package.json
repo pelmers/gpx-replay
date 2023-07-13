@@ -1,6 +1,6 @@
 {
     "name": "gpx-replay-react",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Replay GPX files on a map, completely in the client browser",
     "main": "dist/index.js",
     "scripts": {
@@ -13,6 +13,7 @@
     "license": "MIT",
     "devDependencies": {
         "@babel/generator": "^7.20.4",
+        "@svgr/webpack": "^8.0.1",
         "@turf/turf": "^6.5.0",
         "@types/mapbox-gl": "^2.7.5",
         "@types/react": "^18.0.20",

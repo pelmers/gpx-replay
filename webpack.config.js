@@ -46,6 +46,18 @@ const sharedConfig = {
                 use: 'ts-loader',
             },
             {
+                test: /\.svg$/,
+                use: [
+                    {
+                        loader: '@svgr/webpack',
+                        options: {
+                            ref: true,
+                            svgo: false,
+                        },
+                    },
+                ],
+            },
+            {
                 test: /\.css$/i,
                 use: ['style-loader', 'css-loader'],
             },
