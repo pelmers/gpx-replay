@@ -13,7 +13,7 @@ type Props = {
     initialState?: Partial<State>;
     disableOptions?: boolean;
 };
-type State = {
+export type State = {
     useFollowCam: boolean;
     followSensitivity: number;
     followMomentum: number;
@@ -29,6 +29,7 @@ type State = {
     pointIconSize: number;
     camMomentumRollingAvgInterval: number;
 };
+export type SetStateFunc = MapComponent['setState'];
 export default class MapComponent extends React.Component<Props, State> {
     mapDivRef: React.RefObject<HTMLDivElement>;
     progressRef: React.RefObject<HTMLProgressElement>;
