@@ -178,3 +178,7 @@ input[type='range'] {
     margin: auto;
     max-width: 38em;
 }
+
+.mapbox-gl-draw_ctrl-custom-btn {
+    padding: 3px;
+}

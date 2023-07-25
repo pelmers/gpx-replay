@@ -482,7 +482,7 @@ export default class MapComponent extends React.Component<Props, State> {
                     type: 'raster-dem',
                     url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
                     tileSize: 512,
-                    maxzoom: 14,
+                    maxzoom: 15,
                 });
                 if (this.state.showTopo) {
                     this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 2 });
