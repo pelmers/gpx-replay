@@ -22,7 +22,7 @@ export class HeightGraphComponent extends React.Component<HeightGraphComponentPr
         super(props);
         // Initialize cumulative distance list
         let cumulativeDistance = 0;
-        const {points} = this.props.gpxInfo;
+        const { points } = this.props.gpxInfo;
         for (let pointIndex = 0; pointIndex < points.length - 1; pointIndex++) {
             const currentFrameFeature = toGeoJsonFeature(points[pointIndex]);
             const nextFrameFeature = toGeoJsonFeature(points[pointIndex + 1]);

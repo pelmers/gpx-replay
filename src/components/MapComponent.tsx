@@ -626,4 +626,3 @@ export default class MapComponent extends React.Component<Props, State> {
         );
     }
 }
-

@@ -18,6 +18,7 @@ export default class LoadGpxComponent extends React.Component<Props, State> {
         smoothingFactor: 1.0,
         joinTracks: false,
     };
+    // TODO: speed-sensitive option, instead of scaling playback rate to always 1 minute https://github.com/pelmers/gpx-replay/issues/8
 
     render() {
         const gpsSmoothingHelpEssay = `Smoothing GPS data means removing points that are close together.

@@ -53,10 +53,12 @@ import { MapComponent } from 'gpx-replay-react';
 ### New Features
 
 **0.0.7**
+
 -   Fixed bug with the shading in the elevation profile not matching the position of the icon
 -   Better play/pause buttons (svg instead of unicode characters ⏯️)
 
 **0.0.6**
+
 -   Added 3-D topography feature
 -   Added new `peter.travel` style (inspired by [cycle.travel](https://cycle.travel/)))
 
