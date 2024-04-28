@@ -1,8 +1,5 @@
 {
     "search.exclude": {
         "**/dist": true
-    },
-    "files.watcherExclude": {
-        "**/target": true
     }
 }

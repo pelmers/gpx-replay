@@ -114,15 +114,12 @@ const demoConfig = {
         demo: 'demo.tsx',
     },
     plugins: [],
+
     resolve: {
         extensions: ['.ts', '.js', '.tsx'],
         modules: [ROOT, 'node_modules'],
     },
 };
-
-if (process.env.BUILD_MODE === 'dist') {
-    demoConfig.devtool = 'cheap-module-source-map';
-}
 
 // Script config is like library config but we export a global variable GpxReplay
 const scriptConfig = {
