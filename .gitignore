@@ -4,3 +4,5 @@ node_modules
 src/mapboxApiKey.ts
 dist/**/*.js.map
 dist/*.js.map
+
+.metals
