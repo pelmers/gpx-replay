@@ -54,6 +54,13 @@ class App extends React.Component<{}, State> {
                 </>
             );
         } else if (this.state.gpxInfo != null && this.state.mapComponent != null) {
+	    (window as any).mapComponentProps = {
+		    gpxInfo: this.state.gpxInfo,
+		    bindKeys: true,
+		    mapboxAccessToken: MAPBOX_API_KEY,
+		    playbackFPS: 40,
+		    showElevationProfile: true
+	    };
             return (
                 <this.state.mapComponent
                     gpxInfo={this.state.gpxInfo}
